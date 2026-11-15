@@ -10,7 +10,7 @@
 > `AVANCE.md` con su commit. Las listas de origen quedan como registro de su
 > fecha y no se vuelven a actualizar.
 >
-> Última revisión: 08-nov-2026. Las ubicaciones de código van por función; los
+> Última revisión: 15-nov-2026. Las ubicaciones de código van por función; los
 > números de línea son aproximados.
 
 ---
@@ -42,17 +42,15 @@
   o avisar; meterlo en el mismo commit solo si sin eso el punto no queda
   correcto, y decirlo.
 
-**Estado de la suite al 08-nov-2026**, en `main` después de unir el chunker
-(`3929c0f`), la base de pruebas y el retriever (`eb1d75a`, `396616d`) y los
-logs a archivo (`2f33ca7`). El cierre de la Etapa 2 (`c28df6a`: 769/2/0 y
-452/315/4) está en AVANCE §5.35, y los estados anteriores en las
-secciones de su fecha.
+**Estado de la suite al 15-nov-2026**, en `main` (`8576d1c`), con `LLM_API_KEY` vacía e ignorando
+`test_visual.py` y `test_voz.py`: 822 tests recolectados. El estado del 08-nov (810/2/0 y 482/326/4)
+y el del cierre de la Etapa 2 (`c28df6a`: 769/2/0 y 452/315/4) están en AVANCE §5.35 y §5.36.
 
 | Forma | Pasan | Omitidos | Fallan |
 |---|---|---|---|
-| Puerto cerrado | 482 | 326 | 4: los de `test_web_auth.py` sin `@necesita_bd` |
-| Con Postgres (`studify_test`) | 810 | 2 | 0 |
-| `node tests/*.cjs` | 7 + 5 comprobaciones | — | 0 (no se volvió a correr el 08-nov) |
+| Puerto cerrado | 492 | 326 | 4: los de `test_web_auth.py` sin `@necesita_bd` |
+| Con Postgres (`studify_test`) | 820 | 2 | 0 |
+| `node tests/*.cjs` | 7 + 5 comprobaciones | — | 0 (no se volvió a correr desde el 08-nov) |
 
 Antes de lanzar la forma «con Postgres», comprobar que el contenedor
 `studify-db` esté *healthy*: sin base la corrida no falla, se cuelga (H11).
@@ -70,13 +68,15 @@ se sumó ese mismo día.
    elegir grupo, entrar, salir y volver, cápsula, actividad y «Mis datos».
    Incluye las **4 comprobaciones de la animación de carga** del punto 2b.
 2. **Rotar el `client_secret` de Google** cuando termine esa prueba (O6).
-3. **Prueba pre/post común a los dos grupos** (E1): el instrumento que mide
-   el aprendizaje en el A/B, igual para Control y Experimental.
+3. **Aplicar las pruebas al grupo Control** (E1). El instrumento ya está
+   definido (pre/post de 10 preguntas sobre Diseño UX y cuestionario de
+   percepción sobre la última cápsula, AVANCE §5.37).
 4. **R15:** arreglar `scripts/eval_runner.py`, que puede mandar la clave de
    DeepSeek a otros proveedores. No usarlo antes.
 5. **D7:** decidir si se restringe el acceso a cuentas `@mail.pucv.cl`.
-6. **Punto 1d** (G8): métricas de adherencia sin rechazo y auditoría de las
-   cápsulas guardadas, como evidencia para E3.
+6. **Punto 1d** (G8): métricas de adherencia sin rechazo en el validador. La
+   auditoría de solo lectura de las cápsulas guardadas ya existe
+   (`scripts/adherencia/medir_adherencia.py`, `docs/LIMITACIONES_ADHERENCIA.md`).
 7. ✅ **R10: que la suite no use la base de desarrollo** (resuelto el 08-nov,
    `eb1d75a`). La suite corre contra `studify_test` y `tests/conftest.py` se
    niega a arrancar contra una base cuyo nombre no termine en `_test`. En la
@@ -97,8 +97,9 @@ se sumó ese mismo día.
     cápsulas guardadas también se regeneran una vez. Conviene que esas generaciones
     ocurran antes del piloto y no a mitad de él. Cada máquina tiene que quedar
     al día (O2).
-12. **Instrumentos y consentimiento de la Fase 5** (E1–E4).
-13. **Riesgos legales** L1, L3 y L5.
+12. **Fase 5:** instrumentos definidos (AVANCE §5.37); falta aplicarlos al
+    grupo Control y analizar los resultados (E1, E5).
+13. **Riesgos legales** L1 y L5.
 
 ---
 
@@ -111,6 +112,19 @@ grupo control fallaba al azar porque buscaba «43» en el HTML entero, que trae
 tokens aleatorios; ahora los textos cortos se buscan con
 `tests/conftest.py::texto_visible`. El detalle de qué cambió está en la
 descripción de cada commit.
+
+**Revisión de solo lectura del 15-nov-2026 (sobre `8576d1c`):** siguen abiertos tal
+como se describen:
+- R7: no hay endpoint ni pantalla para marcar un documento `rechazado`, y `crear_capsula` no mira `objetivo.estado`.
+- R8: `teacher.py::_fila` sigue usando `listar_fragmentos(limite=LIMITE_BANDEJA * 10)`.
+- R9: `Microcapsula.texto_plano` no incluye `tarjetas` ni `preguntas`.
+- R11: `import_vark_csv.py --reset` borra sin confirmar.
+- R12: `env_file=".env"` y rutas `data/...` relativas.
+- R13: `get_analytics` promedia todos los diagnósticos.
+- R15: `eval_runner.py` sigue cayendo en `LLM_API_KEY`.
+- H11: `hay_base_de_datos()` llama a `engine.connect()` sin `connect_timeout`.
+
+R14 se cerró por decisión del informe (AVANCE §5.37).
 
 ### Prioridad alta
 
@@ -227,8 +241,6 @@ descripción de cada commit.
     por un proceso externo, caso que `perfil_de_contenido` ya ignora), entraría
     al promedio de la cohorte. Al arreglar R13, tomar solo diagnósticos de
     estudiantes con rol `estudiante`. No se tocó en el 2d.
-- **R14. La fila 7 de la tabla 11.1 como regla de contenido no existe** →
-  decisión del equipo (ver D4).
 
 ### Prioridad baja
 
@@ -289,7 +301,7 @@ descripción de cada commit.
 
 - **G1. Repetir la batería VARK con el modelo de producción.** `deepseek-flash`
   se validó con 4 cápsulas, todas de perfil V; la batería de 30 perfiles A/R/K
-  se corrió con `deepseek-chat` (29/30 válidas, 26 a la primera = 96,7 %).
+  se corrió con `deepseek-chat` (29/30 válidas tras reparar = 96,7 %; 26/30 a la primera = 86,7 %).
   Repetirla con `scripts/probar_perfiles_vark.py`, incluido el perfil V, que
   quedó fuera. K es la salida más larga y va con `max_tokens=2000`. Absorbe el
   pendiente n.º 15 de AVANCE (R fallaba más), que la batería ya mostró
@@ -318,8 +330,8 @@ descripción de cada commit.
     se regeneran. Ojo: la directiva no sale solo con p_K ≥ 40; la regla de
     respaldo de `rules._directivas` también la da a perfiles sin canal sobre
     40 y con K primario (6 de los 43; p. ej. A23-R38-K39).
-  - **Punto 1d (sigue ahora que la Etapa 2 cerró el 08-nov; evidencia para
-    E3, en «Antes del piloto»):** métricas de
+  - **Punto 1d (sigue ahora que la Etapa 2 cerró el 08-nov; en «Antes del
+    piloto»; la auditoría de solo lectura ya existe en `scripts/adherencia/`):** métricas de
     adherencia **sin rechazo** en `metricas` del validador para las
     directivas verificables en el JSON (bloque `tabla` ≥ 2×3, `esquema`,
     `glosario`, `lista_pasos`, `ejemplo_resuelto`, `analogia`, cantidad de
@@ -353,8 +365,9 @@ descripción de cada commit.
   criterio de término de la Fase 3, sin depender de scripts.
   Origen: AVANCE §6 n.º 11 y §5.14.
 - **G11. Revisión docente de cápsulas.** `estado_validacion` nunca cambia de
-  «generada» y el caché compartido no filtraría las rechazadas. La Fase 5 lo
-  necesita (E3). Origen: revisión del 16-oct.
+  «generada» y el caché compartido no filtraría las rechazadas. Desde el 15-nov
+  la Fase 5 ya no lo necesita: la validación docente salió del alcance del
+  informe (AVANCE §5.37). Queda como mejora del producto. Origen: revisión del 16-oct.
 
 ## E. Evaluación (Fase 5)
 
@@ -367,24 +380,26 @@ El horizonte del plan terminaba el 09-oct-2026. Origen: `PLAN_DESARROLLO.md` §4
     entran con Google y eligen su grupo en `/student/login`. El panel separa
     las métricas por grupo y `/teacher/exportar/intentos.csv` entrega los
     intentos con su rol, sin datos personales.
-  - **Falta la prueba pre/post común a los dos grupos:** qué instrumento mide
-    el aprendizaje, igual para Control y Experimental, cuándo se aplica y cómo
-    se registra (la base no lo captura; se cruzaría por `id_estudiante` con el
-    CSV de intentos). También definir las calificaciones y comprobar que el
-    material de los dos grupos sea comparable en cobertura y tiempo (ver la
-    limitación del retriever con más de 8 fragmentos, en «Prioridad baja»).
-  - **Asignación:** cada estudiante elige su grupo en el login; la app no
-    sortea. El equipo decide cómo asigna y comunica qué grupo elige cada
-    participante. Esto no reemplaza el diseño experimental.
-- **E2. Batería técnica:** 20 a 30 consultas controladas con rúbrica 1–5 y
-  doble evaluador (fidelidad, exactitud factual, relevancia, trazabilidad).
-  `scripts/eval_runner.py` hoy cubre un objetivo y perfiles puros.
-- **E3. Validación docente de la adaptación:** el profesor compara las
-  cápsulas de un mismo objetivo para los distintos perfiles. Ajustar la
-  rúbrica del cap. 8.5 para incluir ese criterio. Depende de G11.
-- **E4. Encuesta TAM a estudiantes, rúbrica a docentes y reclutamiento con
-  consentimiento informado.** El plan pedía tenerlos listos en la semana 6.
-- **E5. Estadística descriptiva y capítulo de resultados.**
+  - ✅ **Diseño e instrumentos definidos (15-nov, AVANCE §5.37):**
+    - sorteo por el equipo, grupos de tamaño equivalente y sesiones moderadas por Discord;
+    - unidades 06 y 07 de INF3246, 2 + 2 objetivos por participante;
+    - pre/post de 10 preguntas sobre Diseño UX;
+    - cuestionario de percepción sobre la última cápsula.
+  - **Falta aplicar las pruebas al grupo Control** y cruzar las respuestas del
+    pre/post y del cuestionario (fuera de la app) con los intentos por código de
+    participante (`scripts/exportar_prueba/exportar_prueba.py --forms`).
+  - **Material comparable entre grupos:** UX-06-02 (11), UX-06-03 (12),
+    UX-06-04 (11) y UX-07-02 (12) superan el tope de 8 fragmentos validados, así
+    que en esos objetivos los dos grupos pueden recibir material distinto (ver
+    «Retriever» en «Prioridad baja»).
+- **E5. Análisis y capítulo de resultados.** El análisis está definido (AVANCE
+  §5.37): descriptivo por participante, con U de Mann-Whitney y r de rango
+  biserial como complemento. Falta ejecutarlo con los datos del Control y
+  completar los `\pendiente` del informe (Tabla 5.6 y la conclusión del cap. 6).
+
+E2 (batería técnica con Precision/Recall), E3 (validación docente) y E4 (TAM y
+rúbrica docente) se cerraron el 15-nov por decisión del informe (AVANCE §5.37).
+La medición de la recuperación queda como trabajo futuro en el informe.
 
 ## L. Legal y licencias
 
@@ -396,9 +411,13 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
   un servicio abierto.
 - **L2. El material del curso viaja a un proveedor en China** con términos
   propios sobre el uso de las entradas.
-- **L3. Autorizaciones pendientes:** el consentimiento de los 43 diagnósticos
-  de Google Forms (mayo de 2026) no está documentado, y el material de las
-  aulas virtuales es obra de sus docentes: conviene pedirles autorización.
+- **L3. Autorizaciones de material de otras asignaturas.**
+  - Cerrado el 15-nov (AVANCE §5.37): el equipo contó con el consentimiento de
+    los 43 participantes de mayo (el mecanismo no está documentado en el repo).
+  - Cerrado el 15-nov: la profesora Daniela Quiñones autorizó el uso de su
+    material de INF3246 Experiencia del Usuario.
+  - Queda abierto: conviene pedir autorización a los docentes de cualquier otro
+    material de aula virtual que se use.
 - **L4. Menores de edad:** solo hay una declaración en la casilla, sin verificación.
 - **L5. La aceptación de Términos y Política solo se exige en la web**: los
   endpoints de `/api/*` del estudiante no la piden.
@@ -491,10 +510,10 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
 
 ## D. Decisiones con la profesora guía
 
-- **D1. Tablas 16.2/16.3 del informe:** no se reproducen desde el CSV de los 43
-  diagnósticos. O se corrige el informe con los valores recalculados, o
-  aparece la planilla que explique la diferencia. Origen: AVANCE §6 n.º 5 y §5.2;
-  `CORRECCIONES_INFORME.md` C1.
+D1 (tablas 16.2/16.3, recalculadas desde el CSV) y D4 (fila 7 de la tabla 11.1,
+reemplazada en el informe por el criterio de ≤ 10 pp) se cerraron el 15-nov
+(AVANCE §5.37).
+
 - **D2. ¿«Contenido» y «OA» son la misma jerarquía?** Pidió OA secundarios por
   fragmento y a la vez evitar que un fragmento pertenezca a varios contenidos;
   con `Fragmento.id_objetivo` singular lo segundo se cumple y lo primero es
@@ -502,11 +521,6 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
 - **D3. Embeddings:** su pipeline los incluye y el cap. 13 del informe
   argumenta en contra. Mientras no se cierre, la recuperación sigue siendo SQL
   determinista. Origen: AVANCE §6 n.º 14.
-- **D4. Fila 7 de la tabla 11.1** («tres o más dimensiones sobre el 20 %»):
-  `vark/hierarchy.py` dice que `UMBRAL_MULTIMODAL` se usa para contenido, pero
-  nadie lo usa; `vark/rules.py::_directivas` aplica el criterio de ≤ 10
-  puntos. `{0V, 21A, 21R, 58K}` no recibe las directivas de equilibrio.
-  Origen: revisión del 16-oct (R14).
 - **D5. H13 — los pesos C_* llegan al prompt con el nombre de su canal.** Se
   mantuvo como decisión de diseño; si el cap. 17.2 se lee de forma estricta,
   hay que decidirlo aparte. Origen: H13.
@@ -524,18 +538,15 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
 
 ## X. Extensiones planificadas
 
-- **X1. Módulo Visual:** propuesta del 11-oct-2026 con prototipo
-  determinístico (el LLM entrega una especificación y la plataforma dibuja el
-  SVG). El prompt existe (`rag/prompts/visual.py`) pero la app no lo usa.
-  Estimación de esfuerzo y cambios previos a implementar en
-  `docs/modulo-visual/analisis-modulo-visual.md` §10.6 y §11.
 - **X2. Fragmentos no textuales:** la ingesta omite imágenes y diagramas; la
   propuesta es guardar una descripción textual en `metadatos_json` al curar.
   Origen: AVANCE §7 n.º 3.
-- **X3. Imagen generada (Fase 6):** en pausa por decisión del equipo (texto
-  ilegible con difusión, `docs/historico/2026-09-03_experimento_flux2_klein.md`
-  §10); X1 la reemplaza para los diagramas. El audio de esta fase ya está
-  hecho (Kokoro y Piper). Origen: AVANCE §6 n.º 16.
+
+X1 (módulo Visual) y X3 (imagen generada) se cerraron el 15-nov: el equipo
+descartó la generación de imágenes y el módulo Visual (sin financiamiento y sin
+resultados mínimos viables en las pruebas locales). El apoyo visual son los
+bloques estructurados del frontend (AVANCE §5.37). El prompt
+`rag/prompts/visual.py` sigue en el código sin uso.
 
 ## Correcciones al informe
 
@@ -544,4 +555,4 @@ está en [`CORRECCIONES_INFORME.md`](CORRECCIONES_INFORME.md).
 
 ---
 
-**Orden sugerido:** «Antes del piloto» (arriba) → H11 → R7, R8, R9 → E2–E5 → el resto.
+**Orden sugerido:** «Antes del piloto» (arriba) → E1 y E5 → H11 → R7, R8, R9 → el resto.

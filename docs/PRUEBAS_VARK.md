@@ -463,7 +463,7 @@ Corrida completa del 03-oct-2026 (`20261003-235748_semilla42`, 30 perfiles, con 
 
 | Canal | Veredicto | Evidencia |
 |---|---|---|
-| **Motor común** | ✅ Sólido | 29/30 cápsulas válidas (26 al primer intento, 96,7 % ≥ el 95 % del criterio de la Fase 3), **0 citas inventadas** en 29 cápsulas, todas las fuentes con página, todo en español. Latencia LLM media 4,9 s. Costo total ≈ US$ 0,05. |
+| **Motor común** | ✅ Sólido | 29/30 cápsulas válidas tras reparar (96,7 % ≥ el 95 % del criterio de la Fase 3; 26/30 al primer intento, 86,7 %), **0 citas inventadas** en 29 cápsulas, todas las fuentes con página, todo en español. Latencia LLM media 4,9 s. Costo total ≈ US$ 0,05. |
 | **A — audio** | ✅ Funciona | 16/16 WAV válidos (PCM 24 kHz, decodificables completos, 2,0–2,7 palabras/s: ninguno truncado). La analogía aparece en 13/13 perfiles con A ≥ 40 %. **Pero** XTTS en CPU tarda 67–229 s por audio (media 142 s), y la directiva «preguntas reflexivas» se cumple en 2/13. |
 | **K — ejercicios** | ✅ Funciona con p_K ≥ 40 % | 12/12 cápsulas válidas con K ≥ 40 % traen `flashcards_y_quiz`, `lista_pasos` y `ejemplo_resuelto`, con respuestas respaldadas por los fragmentos. **Falla con 25 ≤ p_K < 40 %:** 3/3 perfiles (K = 30, 30, 33) reciben «2 componentes prácticos» y entregan 1. |
 | **R — texto** | ❌ No se diferencia | **El glosario no aparece en ninguna** de las 9 cápsulas con R ≥ 40 % (0/10 sumando el smoke), y las cápsulas R quedan **57 palabras bajo el objetivo** en promedio (dominante ≥ 60 %). Un R puro recibe dos párrafos con encabezado: lo mismo que cualquier otro perfil sin sus bloques propios. |

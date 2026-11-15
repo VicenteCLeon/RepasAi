@@ -1,5 +1,18 @@
 # Módulo Visual (perfil VARK): análisis y propuesta
 
+> **Propuesta descartada el 15-nov-2026.** El equipo decidió no implementar el módulo Visual ni
+> ninguna generación de imágenes:
+> - el proyecto no tuvo financiamiento para ello;
+> - las pruebas de generación local de imágenes no alcanzaron resultados mínimos viables (texto
+>   ilegible, tiempos y recursos; `docs/historico/2026-09-03_experimento_flux2_klein.md` §10).
+>
+> El apoyo visual del sistema son los bloques estructurados (`tabla`, `esquema`, `glosario`,
+> `lista_pasos`, etc.) que el LLM entrega como datos y el frontend dibuja. El informe final no lo
+> propone como trabajo futuro (AVANCE §5.37).
+>
+> Este documento se conserva como registro, sin cambios. Su §10.8 (migración a `deepseek-flash`)
+> sigue describiendo el modelo en uso.
+
 **Fecha del análisis y de verificación de todos los datos de mercado:** 10-oct-2026.
 **Alcance:** solo lectura del repositorio. Todo lo creado está en `docs/modulo-visual/`.
 **Gasto:** ninguna API de imágenes. El paso LLM y la migración de modelo se probaron después contra DeepSeek (§10), con un gasto total de US$0,03.

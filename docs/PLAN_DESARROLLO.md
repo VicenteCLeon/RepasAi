@@ -172,6 +172,15 @@ Jinja + HTMX: cuestionario VARK (16 ítems, selección múltiple y opción de de
 
 ### Fase 5 — Evaluación y resultados (28 sep – 09 oct)
 
+> **Estado al 15-nov-2026:** lo que sigue sobre el A/B, la TAM y la rúbrica docente quedó superado.
+> - El grupo Control sí usa la app, con una cápsula básica sin VARK (AVANCE §5.35).
+> - El equipo sortea los grupos y las pruebas son sesiones moderadas por videollamada.
+> - Los instrumentos son un pre/post de 10 preguntas y un cuestionario de percepción sobre la última
+>   cápsula.
+> - La validación docente y la batería con Precision/Recall salieron del alcance (AVANCE §5.37).
+>
+> Lo abierto está en `PENDIENTES.md` E1 y E5.
+
 > **Alcance adicional no planeado (12-ago-2026):** se construyó un panel de analíticas para
 > el docente — historial de cápsulas, cobertura curricular por canal, rendimiento en quizzes
 > (acierto al primer intento), simulador VARK y estilos de aprendizaje de la cohorte
@@ -213,6 +222,10 @@ Jinja + HTMX: cuestionario VARK (16 ítems, selección múltiple y opción de de
 > **Track paralelo:** los instrumentos, el consentimiento informado y el reclutamiento tienen que estar listos en la **semana 6**, no en la 9. Conseguir participantes es lo que más se atrasa.
 
 ### Fase 6 — Generación multimedia local (extensión, agregada 24-ago-2026)
+
+> **Estado al 15-nov-2026:** el audio se implementó con Kokoro y Piper (AVANCE §5.26 a §5.28). La
+> generación de imágenes (y de video) quedó descartada, igual que el módulo Visual: sin financiamiento
+> y sin resultados mínimos viables en las pruebas locales (AVANCE §5.37).
 
 > **Fuera del horizonte original de 10 semanas** (Semana 0 → Fase 5, hasta el 09-oct-2026): se
 > agrega como fase de extensión, a continuación de la evaluación y sin bloquear el criterio de

@@ -1,7 +1,7 @@
 # Studify — Estado de avance
 
 > Bitácora del proyecto: qué se hizo, qué se verificó y qué se decidió en el camino.
-> Última actualización: **08-nov-2026**. Lo que falta está en [`PENDIENTES.md`](PENDIENTES.md);
+> Última actualización: **15-nov-2026**. Lo que falta está en [`PENDIENTES.md`](PENDIENTES.md);
 > el índice de toda la documentación, en [`README.md`](README.md).
 
 ---
@@ -23,22 +23,22 @@ avance ya entregado) y el plan de implementación derivado, [`PLAN_DESARROLLO.md
 
 ---
 
-## 1. Estado actual (08-nov-2026)
+## 1. Estado actual (15-nov-2026)
 
 | Área | Estado | Dónde |
 |---|---|---|
 | **Fase 1 — Perfil VARK** | Cerrada. 16 ítems → puntajes → vector porcentual → pesos C_* → reglas de la tabla 11.1. | §5.1, §5.2 |
 | **Fase 2 — Base de conocimiento** | Cerrada. Ingesta de PDF/PPTX con página, curación humana, retriever SQL sin embeddings, etiquetado asistido por LLM y borrado de documentos desde el panel. | §5.5, §5.15, §5.30 |
-| **Fase 3 — Generación** | Cerrada. Contrato de siete pasos, validador, bucle de reparación y caché por huella. Batería VARK del 03-oct (con `deepseek-chat`): 29/30 cápsulas válidas, 26 a la primera (96,7 %), 0 citas inventadas. Desde el 11-nov el validador acepta hasta 350 palabras (el prompt sigue pidiendo máximo 300). | §5.6, §5.11, §5.22, §5.36 |
+| **Fase 3 — Generación** | Cerrada. Contrato de siete pasos, validador, bucle de reparación y caché por huella. Batería VARK del 03-oct (con `deepseek-chat`): 29/30 cápsulas válidas tras reparar (96,7 %), 26/30 a la primera (86,7 %), 0 citas inventadas. Desde el 11-nov el validador acepta hasta 350 palabras (el prompt sigue pidiendo máximo 300). | §5.6, §5.11, §5.22, §5.36 |
 | **Fase 4 — Interfaz** | Cerrada y rediseñada el 02-oct: cuestionario, perfil, catálogo, visor y panel del docente con login. | §5.7, §5.20 |
-| **Grupos del estudio A/B** | Experimental (rol `estudiante`): cuestionario VARK, cápsula adaptada y narración con p_A ≥ 25 %. Control (rol `control`): sin cuestionario, cápsula básica sin adaptación (resumen y `quiz_mc`, caché `control-neutro-v1`) y sin audio. Los dos eligen su grupo al entrar con Google. Métricas del panel y exportación CSV de intentos separadas por grupo. | §5.33, §5.35 |
+| **Grupos del estudio A/B** | Experimental (rol `estudiante`): cuestionario VARK, cápsula adaptada y narración con p_A ≥ 25 %. Control (rol `control`): sin cuestionario, cápsula básica sin adaptación (resumen y `quiz_mc`, caché `control-neutro-v1`) y sin audio. El equipo sortea el grupo y el participante lo marca al entrar con Google, en una sesión moderada por videollamada. Métricas del panel y exportación CSV de intentos separadas por grupo. | §5.33, §5.35, §5.37 |
 | **Acceso Google** | Única forma de entrar para los dos grupos, con elección obligatoria de grupo; vincula el perfil local y recupera el mismo estudiante. Credenciales cargadas en la máquina 1 el 02-nov; falta probarlo con una cuenta real de cada grupo y rotar el secret (O6). | §5.34, §5.35 |
-| **Marco legal** | Términos 0.5 y Política 0.7, consentimiento registrado, `/mis-datos` y código bajo AGPL-3.0-or-later. | §5.21, §5.29, §5.35 |
+| **Marco legal** | Términos 0.6 y Política 0.8 (desde `73d4881`, 08-nov), consentimiento registrado, `/mis-datos` y código bajo AGPL-3.0-or-later. | §5.21, §5.29, §5.35, §5.37 |
 | **Audio (Fase 6)** | Kokoro y Piper según la preferencia de voz del estudiante, con caché por huella. | §5.26 a §5.28 |
-| **Imagen (Fase 6)** | En pausa. El módulo Visual (SVG dibujado a partir de una especificación del LLM) está propuesto, sin integrar a la app. | §5.30 |
-| **Fase 5 — Evaluación** | Los dos grupos del A/B y sus datos están listos en la app. Faltan la prueba pre/post común, la batería técnica, la validación docente y la TAM. | `PENDIENTES.md` E |
+| **Imagen (Fase 6)** | Descartada el 15-nov: sin financiamiento y sin resultados mínimos viables en las pruebas locales. El módulo Visual no se implementa; el apoyo visual son bloques estructurados dibujados en el frontend. | §5.30, §5.37 |
+| **Fase 5 — Evaluación** | Los dos grupos del A/B y sus datos están listos en la app. Instrumentos definidos: pre/post de 10 preguntas y cuestionario de percepción sobre la última cápsula. Falta aplicar las pruebas al grupo Control. | §5.37, `PENDIENTES.md` E |
 | **Modelo** | `deepseek-flash` con el razonamiento apagado (`LLM_THINKING=disabled`) desde el 11-oct. | §5.30 |
-| **Suite local** | Con Postgres (Docker del autor): 769 pasan, 2 omitidas, 0 fallan; sin base: 452 pasan, 315 omitidas y 4 fallan (R10). Tests node: 7 + 5 comprobaciones. | §5.35 |
+| **Suite local** | Corrida del 15-nov sobre `8576d1c`: con Postgres (`studify_test`) 820 pasan, 2 omitidas, 0 fallan; sin base 492 pasan, 326 omitidas y 4 fallan (los de `test_web_auth.py` sin `@necesita_bd`). Tests node: 7 + 5 comprobaciones (no se volvieron a correr). | §5.36, §5.37 |
 
 Lo primero que falta antes del piloto con estudiantes está al inicio de
 [`PENDIENTES.md`](PENDIENTES.md).
@@ -93,6 +93,7 @@ Lo primero que falta antes del piloto con estudiantes está al inicio de
 | 5.34 | 01-nov | Google OpenID Connect, vinculación y recuperación del perfil (D6) |
 | 5.35 | 04–08-nov | Estudio A/B, Etapas 1 y 2: cápsula básica del control, grupo en el login y datos por grupo |
 | 5.36 | 11-nov | El validador acepta hasta 350 palabras; el prompt sigue pidiendo máximo 300 |
+| 5.37 | 15-nov | Decisiones del informe final: módulo Visual descartado, diseño e instrumentos del A/B, tablas VARK recalculadas |
 
 ---
 
@@ -1978,7 +1979,8 @@ los perfiles y el script no importa `media/image.py`.
 ### Resultado de la corrida completa
 
 **15/30 perfiles pasan todos los criterios.** El motor común está sólido: 29/30 cápsulas
-válidas (96,7 %), **0 citas inventadas** y US$ 0,05 en total. Por canal:
+válidas tras reparar (96,7 %), 26/30 a la primera (86,7 %), **0 citas inventadas** y US$ 0,05
+en total. Por canal:
 
 - **A funciona:** 16/16 audios válidos, ninguno truncado. Pero XTTS en CPU tarda 67–229 s
   por audio.
@@ -2862,6 +2864,104 @@ próximas pruebas con usuarios.
 
 ---
 
+## 5.37. Decisiones del informe final (15-nov-2026)
+
+Se actualizó el informe final del seminario (LaTeX, carpeta `Informe`, fuera de este repo) para que
+describa lo implementado. El registro detallado, con archivo, sección y motivo de cada cambio, está en
+`Informe/CAMBIOS_REALIZADOS.md`. **No se tocó código.** Esta sección deja solo lo que el equipo decidió y
+quedó escrito en el informe.
+
+### Imagen y módulo Visual: descartados
+
+- **No se generan imágenes.** El proyecto no tuvo financiamiento para una API de imágenes, y las pruebas
+  locales no alcanzaron resultados mínimos viables:
+  - en la GPU AMD (16 GB de VRAM, 32 GB de RAM) hubo *offloading* a CPU, *thrashing* y más de 50 min por
+    imagen;
+  - FLUX.2 Klein en una RTX 3070 bajó a 6,6–12,5 s, pero el texto de los diagramas siguió ilegible
+    (`docs/historico/2026-09-03_experimento_flux2_klein.md` §10).
+- **El módulo Visual no se implementa** ni queda como trabajo futuro (cierra X1 y X3 de `PENDIENTES.md`).
+  La propuesta de `docs/modulo-visual/` se conserva como registro, con una nota de descarte.
+- **El apoyo visual son los bloques estructurados** que el LLM entrega como datos y el frontend dibuja:
+  `tabla`, `esquema` (lista jerárquica), `glosario`, `lista_pasos`, `ejemplo_resuelto`, `analogia` y las
+  tarjetas de la actividad.
+
+### Estudio A/B: diseño
+
+- **Asignación:** el equipo sorteó a los participantes entre Control y Experimental, buscando grupos de
+  tamaño equivalente, y le comunicó a cada uno su grupo. La app no sortea: la elección en
+  `/student/login` registra la asignación del equipo.
+- **Modalidad:** sesiones moderadas por videollamada (Discord), de unos 40 minutos en promedio.
+  - El participante marca el grupo asignado, entra con Google, abre el tema y resuelve la actividad
+    siguiendo instrucciones del equipo.
+  - El equipo solo indica qué opciones usar y cuáles no; no da ayuda sobre el contenido ni sobre las
+    respuestas.
+  - La app no impide marcar otro grupo: ese riesgo lo controla la moderación.
+  - Como criterio de diseño, las sesiones de los dos grupos deben ser equivalentes en tiempo y guía.
+- **Material:** unidades 06 y 07 de INF3246 Experiencia del Usuario (UX-06-01 a 06 y UX-07-01 a 05).
+  Cada participante trabaja 2 objetivos de la unidad 06 y 2 de la 07. El material se usa con
+  autorización de su profesora, Daniela Quiñones.
+- **Análisis:** exploratorio y descriptivo, con el participante como unidad de análisis (sus cápsulas se
+  promedian). Como complemento, sin buscar significancia, la U de Mann-Whitney con el r de rango
+  biserial `r = 2U_E/(n_E·n_C) − 1`, donde U se calcula respecto del grupo Experimental (un r positivo
+  indica valores más altos en Experimental).
+
+### Instrumentos
+
+- **Prueba pre/post:** 10 preguntas de conocimiento sobre Diseño UX, las mismas antes y después y para los
+  dos grupos. Limitaciones declaradas en el informe: efecto de práctica, muestra pequeña sin inferencia
+  significativa e instrumento breve por la duración de la sesión.
+- **Percepción, respecto de la última cápsula de la sesión:** esfuerzo mental (0–10), usabilidad (1–5),
+  satisfacción (1–5) y dos preguntas abiertas («¿Qué fue lo que más te gustó de la cápsula?» y «¿Qué
+  cambiarías o mejorarías?»), que se analizan agrupando las respuestas por temas.
+- **Métricas de la app** (sin cambios): acierto al primer intento en `quiz_mc`, promedio en los
+  cuestionarios y reintentos, por participante y grupo, más el CSV de intentos.
+
+### Lo que salió del alcance del informe
+
+- **Validación docente de las cápsulas:** eliminada por completo (no queda como metodología, limitación ni
+  trabajo futuro). Cierra E3.
+- **Precision@k y Recall@k:** no se midieron; el informe usa validez, citas inventadas y adherencia, y
+  deja la medición de la recuperación como trabajo futuro. Cierra E2 para el informe.
+- **SUS, TAM y escalas de carga cognitiva (Paas, NASA-TLX):** reemplazadas por el cuestionario de
+  percepción anterior. Cierra E4.
+
+### Datos del informe corregidos
+
+- **Tablas 16.2/16.3 (§5.2):** recalculadas desde `data/data_cuestionarios_43.csv` con
+  `scripts/import_vark_csv.leer_selecciones`, `vark/scoring.py` y `vark/hierarchy.py`. Promedios:
+  - total: V 5,44 / A 7,37 / R 7,23 / K 7,91;
+  - Informática: V 6,30 / A 7,87 / R 6,22 / K 9,61;
+  - otras carreras: V 4,45 / A 6,80 / R 8,40 / K 5,95.
+
+  La moda es K unimodal (17 unimodales, 17 bimodales y 9 multimodales). Coincide con lo registrado en
+  §5.2. Las figuras del informe se regeneraron y los valores publicados en abril se reemplazaron, con
+  una nota metodológica. Cierra D1.
+- **Perfil por defecto K→A:** el informe deja de presentarlo como implementado. Sin diagnóstico no se
+  genera, y K→A queda como caracterización de la cohorte (K primero y A segundo en la muestra total y en
+  Informática).
+- **Fila 7 de la tabla 11.1:** el informe declara el criterio implementado (canales activos a ≤ 10 pp del
+  máximo; directivas de equilibrio en los multimodales) y que la fila «tres o más canales sobre el 20 %»
+  quedó reemplazada. Cierra D4 y R14.
+- **Narración desde p_A ≥ 25 %:** se presenta como criterio de diseño del equipo, el mismo umbral
+  intermedio que activa otros recursos adaptativos.
+- **Batería VARK del 03-oct:** 29/30 válidas tras reparar (96,7 %) y 26/30 a la primera (86,7 %),
+  verificado en `data/pruebas_vark/20261003-235748_semilla42/resumen.json` (26 con un intento, 3 con una
+  reparación, 1 agotada). Los docs decían «26 a la primera (96,7 %)»; corregido.
+- **Consentimiento de los 43 diagnósticos de mayo:** el equipo contó con el consentimiento de los
+  participantes. El mecanismo no está documentado en el repo.
+- **Versiones legales vigentes:** Términos 0.6 y Política 0.8 desde `73d4881` (08-nov), que nombró los
+  grupos «Experimental» y «Control» en «Mis datos» y en los textos legales. §5.35 registra las versiones
+  del punto 2c (Términos 0.5 y Política 0.7, `470e4fa`).
+
+### Verificación
+
+- Suite del 15-nov sobre `8576d1c`:
+  - con Postgres (`studify_test`): 820 pasan, 2 omitidas, 0 fallan;
+  - sin base: 492 pasan, 326 omitidas y 4 fallan (los de `test_web_auth.py` sin `@necesita_bd`).
+- En ambos casos con `LLM_API_KEY` vacía e ignorando `test_visual.py` y `test_voz.py`.
+
+---
+
 ## 6. Pendiente inmediato
 
 > **Registro al 17-oct-2026; ya no se actualiza.** Lo que sigue abierto de esta lista está en [`PENDIENTES.md`](PENDIENTES.md), junto con el resto de los pendientes del proyecto.
@@ -3116,12 +3216,14 @@ cd <la ruta que corresponda>  # siempre la raíz: el .env y data/ se leen relati
 alembic upgrade head          # deja el esquema al día antes de tocar nada
 uvicorn studify.main:app --reload --app-dir src
 # → http://127.0.0.1:8000/ (portada), /health y /docs
-# → el panel del docente: botón «Soy docente» → /teacher/login → admin / admin123
-#   (valor de fábrica en config.py si el .env no fija TEACHER_USERNAME/TEACHER_PASSWORD;
-#   cambiarlas antes de exponer el sistema fuera del equipo — PENDIENTES.md O1).
+# → el panel del docente: botón «Soy docente» → /teacher/login, con TEACHER_USERNAME y
+#   TEACHER_PASSWORD del .env. Desde el 27-oct (O1) no hay clave de fábrica: sin
+#   TEACHER_PASSWORD el panel queda cerrado, y fuera de APP_ENV=dev no arranca con una clave débil.
 
 # Tests: LLM_API_KEY vacía para no gastar; test_visual.py y test_voz.py se ignoran (H8).
+# Desde el 08-nov (R10) la suite solo corre contra una base cuyo nombre termine en _test.
 # Las dos formas de correrla (sin base y con Postgres) están en PENDIENTES.md.
+$env:DATABASE_URL="postgresql+psycopg://studify:studify@localhost:5432/studify_test"
 $env:LLM_API_KEY=""
 .\.venv\Scripts\python -m pytest -q --ignore=tests/test_visual.py --ignore=tests/test_voz.py
 ruff check .
@@ -3146,7 +3248,7 @@ el puerto real.
 | `TEACHER_USERNAME` / `TEACHER_PASSWORD` | de fábrica (`admin`/`admin123`) | de fábrica (`admin`/`admin123`) |
 | Datos VARK (`estudiante`, `diagnostico_vark`) | ✅ 43 reales, sin ruido de tests (sección 5.18) | sin auditar — puede tener el mismo ruido que se encontró en la máquina 1 |
 
-Esta tabla es del 26-ago-2026. La máquina donde se hizo la revisión del 16-oct (`D:\PUCV\…`) tiene otra base: 1 estudiante, 5 diagnósticos y objetivos de Bases de Datos e Introducción a la Programación. Desde el 11-oct, además, cada `.env` tiene que decir `LLM_MODEL=deepseek-flash`, y cada base tiene que estar en la migración `d7e2b9c41a58` (17-oct).
+Esta tabla es del 26-ago-2026. La máquina donde se hizo la revisión del 16-oct (`D:\PUCV\…`) tiene otra base: 1 estudiante, 5 diagnósticos y objetivos de Bases de Datos e Introducción a la Programación. Desde el 11-oct, además, cada `.env` tiene que decir `LLM_MODEL=deepseek-flash`, y cada base tiene que estar en la última migración, `a7c3d9e51f64` (01-nov). La fila de `TEACHER_USERNAME` / `TEACHER_PASSWORD` quedó obsoleta con O1 (27-oct): ya no hay valor de fábrica.
 
 Si `.venv` no existe (máquina nueva): seguir `README.md` sección "Puesta en marcha" completa,
 incluyendo la creación del rol/base de Postgres (comando en README sección "Crear el rol y la
