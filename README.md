@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 Studify
+# 📚 RepasAi
 
 ### Micro-aprendizaje adaptativo mediante IA generativa
 
@@ -31,8 +31,6 @@ determinista por SQL, trazable hasta el fragmento y la página fuente.
 > **Autores:** Patricio Hernández Vergara · Vicente Cisternas León
 > **Profesora guía:** Sandra Cano Mazuera
 >
-> La UI se presenta al usuario final como **«RepasAi»**; `Studify` es el nombre del
-> repositorio y del paquete Python.
 
 ---
 
