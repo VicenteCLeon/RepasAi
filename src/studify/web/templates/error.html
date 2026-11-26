@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% import "components/ui.html" as ui %}
+
+{# Página de error para quien navega (`web/errores.py`). #}
+{% block title %}{{ titulo }} · RepasAi{% endblock %}
+
+{% block content %}
+<div class="sesion-compartida">
+    {% call ui.empty_state("triangle-alert", titulo, tone="warning", heading="h1") %}
+    <p>{{ mensaje }}</p>
+    <div class="cluster">
+        <a href="/" class="btn btn-primary">{{ ui.icon("house") }}Ir al inicio</a>
+        {% if es_docente %}
+        <a href="/teacher/curation" class="btn btn-secondary">{{ ui.icon("folder-check") }}Panel docente</a>
+        {% endif %}
+    </div>
+    {% endcall %}
+</div>
+{% endblock %}

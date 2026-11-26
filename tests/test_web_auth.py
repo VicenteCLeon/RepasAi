@@ -442,7 +442,7 @@ def test_el_logout_borra_la_sesion(http, clave_docente):
     respuesta = http.post("/teacher/logout", follow_redirects=False)
 
     assert respuesta.status_code == 303
-    assert respuesta.headers["location"] == "/student/catalog"
+    assert respuesta.headers["location"] == "/"
     assert http.get("/teacher/curation", follow_redirects=False).status_code == 303
 
 

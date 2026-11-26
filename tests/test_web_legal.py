@@ -547,9 +547,10 @@ def test_eliminar_conserva_el_audio_que_tambien_usa_otro_estudiante(
 
 
 def test_versiones_vigentes():
-    """0.5/0.7 del punto 2c; 0.6/0.8 nombran los grupos como el login (08-nov)."""
-    assert legal.TERMINOS.version == "0.6"
-    assert legal.PRIVACIDAD.version == "0.8"
+    """0.6/0.8 nombran los grupos como el login (08-nov); 0.7/0.9 corrigen
+    nombre y correo, Cloudflare, las IP y quién revisa el material (26-nov)."""
+    assert legal.TERMINOS.version == "0.7"
+    assert legal.PRIVACIDAD.version == "0.9"
 
 
 @pytest.mark.parametrize("ruta", ["/privacidad", "/terminos"])
@@ -593,12 +594,12 @@ def test_los_terminos_ya_no_mencionan_el_registro_local_del_control(http):
 @necesita_bd
 @pytest.mark.parametrize(
     ("terminos_previos", "privacidad_previa"),
-    [("0.4", "0.6"), ("0.5", "0.7")],
+    [("0.4", "0.6"), ("0.5", "0.7"), ("0.6", "0.8")],
 )
 def test_aceptacion_anterior_vuelve_a_pedirse_y_regresa_a_donde_iba(
     http, db, creados, terminos_previos, privacidad_previa
 ):
-    """Quien aceptó una versión anterior (antes del 2c, o la del 2c) debe
+    """Quien aceptó una versión anterior (también las del piloto, 0.6/0.8) debe
     aceptar la vigente y, al hacerlo, vuelve a donde iba."""
     enviar_vark(http, data=RESPUESTAS | {"acepto": "si"})
     id_estudiante = _id_de_la_cookie(http)
@@ -619,7 +620,7 @@ def test_aceptacion_anterior_vuelve_a_pedirse_y_regresa_a_donde_iba(
     assert bloqueado.headers["location"] == "/aceptar?next=/student/catalog"
     lista = http.get("/aceptar?next=/student/catalog").text.split(
         'class="aceptar-docs"')[1].split("</ul>")[0]
-    assert "Versión 0.6" in lista and "Versión 0.8" in lista
+    assert "Versión 0.7" in lista and "Versión 0.9" in lista
 
     aceptada = http.post(
         "/aceptar", data={"acepto": "si", "next": "/student/catalog"}, follow_redirects=False
@@ -628,4 +629,4 @@ def test_aceptacion_anterior_vuelve_a_pedirse_y_regresa_a_donde_iba(
     assert aceptada.headers["location"] == "/student/catalog"
     assert http.get("/student/catalog", follow_redirects=False).status_code == 200
     versiones = {(f.documento, f.version) for f in _aceptaciones(db, id_estudiante)}
-    assert {("terminos", "0.6"), ("privacidad", "0.8")} <= versiones
+    assert {("terminos", "0.7"), ("privacidad", "0.9")} <= versiones

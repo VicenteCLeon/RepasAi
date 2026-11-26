@@ -10,6 +10,11 @@ Se registra solo la jerarquía `studify.*`, no la de uvicorn ni la de las
 bibliotecas: el archivo es para diagnosticar la app, no un log de accesos.
 Los mensajes identifican al estudiante solo por su id (sin nombre, correo ni
 respuestas), igual que el resto de los logs del proyecto.
+
+**Ninguna dirección IP se escribe.** Los mensajes de la app no la incluyen, y
+`ocultar_direcciones_en_accesos` la quita del registro de accesos de uvicorn,
+que sale por consola: así tampoco queda guardada si alguien redirige esa salida
+a un archivo, como ocurrió durante el piloto (RV-04, 26-nov-2026).
 """
 
 import logging
@@ -26,6 +31,26 @@ RESPALDOS = 5
 
 FORMATO = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 FORMATO_FECHA = "%Y-%m-%d %H:%M:%S%z"
+
+
+class SinDireccionIP(logging.Filter):
+    """Reemplaza por «-» la dirección del cliente en una línea de acceso de uvicorn.
+
+    Uvicorn manda esas líneas con los argumentos
+    `(cliente, método, ruta, versión_http, estado)`.
+    """
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        if isinstance(record.args, tuple) and len(record.args) == 5:
+            record.args = ("-", *record.args[1:])
+        return True
+
+
+def ocultar_direcciones_en_accesos() -> None:
+    """Instala `SinDireccionIP` en `uvicorn.access`. Es idempotente."""
+    accesos = logging.getLogger("uvicorn.access")
+    if not any(isinstance(f, SinDireccionIP) for f in accesos.filters):
+        accesos.addFilter(SinDireccionIP())
 
 
 def configurar_registro(

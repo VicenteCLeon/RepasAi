@@ -9,7 +9,7 @@
 
 <div class="catalogo">
     {{ ui.page_header("¿Qué quieres repasar hoy?",
-        "Elige un tema y RepasAi arma una microcápsula con un resumen del material. Solo aparecen temas con material institucional ya revisado por un docente." if es_control else "Elige un tema y RepasAi arma una microcápsula adaptada a tu perfil. Solo aparecen temas con material institucional ya revisado por un docente.",
+        "Elige un tema y RepasAi arma una microcápsula con un resumen del material. Solo aparecen temas con material institucional revisado por el equipo, con autorización de la profesora del curso." if es_control else "Elige un tema y RepasAi arma una microcápsula adaptada a tu perfil. Solo aparecen temas con material institucional revisado por el equipo, con autorización de la profesora del curso.",
         "Temas", "layers") }}
 
     {% if asignaturas %}
@@ -79,7 +79,7 @@
 
     <div class="card card-flat" data-catalog-empty hidden>
         {% call ui.empty_state("search", "No encontramos ese tema", heading="h2") %}
-        <p>Prueba con otra palabra o con el código del objetivo (por ejemplo, BD-U3).</p>
+        <p>Prueba con otra palabra del tema o con su código.</p>
         {% endcall %}
     </div>
 
@@ -87,8 +87,8 @@
     <div class="card card-flat">
         {% call ui.empty_state("inbox", "Todavía no hay temas disponibles", heading="h2") %}
         <p>
-            Un tema aparece acá cuando tiene material curado: el docente sube el
-            documento oficial y valida los fragmentos que lo respaldan. Sin eso
+            Un tema aparece acá cuando tiene material curado: el equipo sube el
+            documento oficial y revisa los fragmentos que lo respaldan. Sin eso
             RepasAi no puede generar una cápsula fundamentada, así que prefiere no
             ofrecer el tema antes que inventar el contenido.
         </p>

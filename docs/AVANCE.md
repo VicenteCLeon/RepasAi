@@ -1,7 +1,7 @@
 # Studify — Estado de avance
 
 > Bitácora del proyecto: qué se hizo, qué se verificó y qué se decidió en el camino.
-> Última actualización: **15-nov-2026**. Lo que falta está en [`PENDIENTES.md`](PENDIENTES.md);
+> Última actualización: **26-nov-2026**. Lo que falta está en [`PENDIENTES.md`](PENDIENTES.md);
 > el índice de toda la documentación, en [`README.md`](README.md).
 
 ---
@@ -23,7 +23,7 @@ avance ya entregado) y el plan de implementación derivado, [`PLAN_DESARROLLO.md
 
 ---
 
-## 1. Estado actual (15-nov-2026)
+## 1. Estado actual (26-nov-2026)
 
 | Área | Estado | Dónde |
 |---|---|---|
@@ -32,16 +32,16 @@ avance ya entregado) y el plan de implementación derivado, [`PLAN_DESARROLLO.md
 | **Fase 3 — Generación** | Cerrada. Contrato de siete pasos, validador, bucle de reparación y caché por huella. Batería VARK del 03-oct (con `deepseek-chat`): 29/30 cápsulas válidas tras reparar (96,7 %), 26/30 a la primera (86,7 %), 0 citas inventadas. Desde el 11-nov el validador acepta hasta 350 palabras (el prompt sigue pidiendo máximo 300). | §5.6, §5.11, §5.22, §5.36 |
 | **Fase 4 — Interfaz** | Cerrada y rediseñada el 02-oct: cuestionario, perfil, catálogo, visor y panel del docente con login. | §5.7, §5.20 |
 | **Grupos del estudio A/B** | Experimental (rol `estudiante`): cuestionario VARK, cápsula adaptada y narración con p_A ≥ 25 %. Control (rol `control`): sin cuestionario, cápsula básica sin adaptación (resumen y `quiz_mc`, caché `control-neutro-v1`) y sin audio. El equipo sortea el grupo y el participante lo marca al entrar con Google, en una sesión moderada por videollamada. Métricas del panel y exportación CSV de intentos separadas por grupo. | §5.33, §5.35, §5.37 |
-| **Acceso Google** | Única forma de entrar para los dos grupos, con elección obligatoria de grupo; vincula el perfil local y recupera el mismo estudiante. Credenciales cargadas en la máquina 1 el 02-nov; falta probarlo con una cuenta real de cada grupo y rotar el secret (O6). | §5.34, §5.35 |
-| **Marco legal** | Términos 0.6 y Política 0.8 (desde `73d4881`, 08-nov), consentimiento registrado, `/mis-datos` y código bajo AGPL-3.0-or-later. | §5.21, §5.29, §5.35, §5.37 |
+| **Acceso Google** | Única forma de entrar para los dos grupos, con elección obligatoria de grupo; vincula el perfil local y recupera el mismo estudiante. Usado en el piloto por 20 cuentas. Secret rotado. | §5.34, §5.35, §5.39 |
+| **Piloto** | Realizado: 20 cuentas (12 experimentales y 8 de control), intentos del 8 al 19-nov (UTC), cada participante desde su dispositivo por un túnel de Cloudflare. | §5.37, §5.39 |
+| **Marco legal** | Términos 0.7 y Política 0.9 (26-nov): nombre y correo de Google, túnel de Cloudflare, sin IP en archivos y material revisado por el equipo. Consentimiento registrado, `/mis-datos` y código bajo AGPL-3.0-or-later. | §5.21, §5.29, §5.35, §5.39 |
 | **Audio (Fase 6)** | Kokoro y Piper según la preferencia de voz del estudiante, con caché por huella. | §5.26 a §5.28 |
 | **Imagen (Fase 6)** | Descartada el 15-nov: sin financiamiento y sin resultados mínimos viables en las pruebas locales. El módulo Visual no se implementa; el apoyo visual son bloques estructurados dibujados en el frontend. | §5.30, §5.37 |
-| **Fase 5 — Evaluación** | Los dos grupos del A/B y sus datos están listos en la app. Instrumentos definidos: pre/post de 10 preguntas y cuestionario de percepción sobre la última cápsula. Falta aplicar las pruebas al grupo Control. | §5.37, `PENDIENTES.md` E |
+| **Fase 5 — Evaluación** | Instrumentos definidos (pre/post de 10 preguntas y cuestionario de percepción), sesiones con usuarios terminadas y analizadas (el análisis está fuera de este repositorio). | §5.37, `PENDIENTES.md` E |
 | **Modelo** | `deepseek-flash` con el razonamiento apagado (`LLM_THINKING=disabled`) desde el 11-oct. | §5.30 |
-| **Suite local** | Corrida del 15-nov sobre `8576d1c`: con Postgres (`studify_test`) 820 pasan, 2 omitidas, 0 fallan; sin base 492 pasan, 326 omitidas y 4 fallan (los de `test_web_auth.py` sin `@necesita_bd`). Tests node: 7 + 5 comprobaciones (no se volvieron a correr). | §5.36, §5.37 |
+| **Suite local** | 26-nov: con Postgres (`studify_test`) 917 pasan, 0 fallan; sin base 560 pasan, 353 omitidas y 4 fallan (los de `test_web_auth.py` sin `@necesita_bd`). Los tres tests de node pasan. `ruff check .`: 201 avisos previos. | §5.39 |
 
-Lo primero que falta antes del piloto con estudiantes está al inicio de
-[`PENDIENTES.md`](PENDIENTES.md).
+Lo que sigue abierto está en [`PENDIENTES.md`](PENDIENTES.md).
 
 **Cómo leer el resto de este archivo:**
 
@@ -94,6 +94,8 @@ Lo primero que falta antes del piloto con estudiantes está al inicio de
 | 5.35 | 04–08-nov | Estudio A/B, Etapas 1 y 2: cápsula básica del control, grupo en el login y datos por grupo |
 | 5.36 | 11-nov | El validador acepta hasta 350 palabras; el prompt sigue pidiendo máximo 300 |
 | 5.37 | 15-nov | Decisiones del informe final: módulo Visual descartado, diseño e instrumentos del A/B, tablas VARK recalculadas |
+| 5.38 | 26-nov | Muestras de voz en el selector |
+| 5.39 | 26-nov | Revisión de calidad previa a la profesora guía y correcciones |
 
 ---
 
@@ -3047,6 +3049,79 @@ Se generan en cada instalación (README, «Puesta en marcha»); `.gitignore` ign
   −23 dB). No se niveló porque la narración real tiene la misma diferencia.
 - **La narración del visor no se pausa** al escuchar una muestra: pueden sonar juntas.
 - **Sin probar** en un teléfono real ni en Safari.
+
+---
+
+## 5.39. Revisión de calidad y correcciones (26-nov-2026)
+
+Antes de que la profesora guía revise el software se hizo una revisión completa sobre `db97d21`: instalación
+desde un clon, recorridos de los dos grupos y del docente, errores visibles, seguridad, interfaz,
+documentación y suite. Se hizo sobre una base temporal; la principal solo se leyó. Dio 32 hallazgos
+(identificados `RV-01` a `RV-32`). Esta sección resume lo corregido.
+
+Decisiones del equipo que fijaron el alcance: la demostración se hace desde el equipo de un autor por un
+túnel de Cloudflare (quien revisa no instala nada); los participantes del piloto entraron por ese túnel
+desde sus dispositivos; el material lo revisó el equipo y la profesora del curso autorizó su uso; los
+intentos fallidos de acceso docente del 10, 11 y 18-nov fueron del propio equipo.
+
+### Qué se corrigió
+
+- **Demostración e instalación:** [`CHECKLIST_DEMO.md`](CHECKLIST_DEMO.md) y
+  `scripts/verificar_tunel.py`, que compara el túnel abierto con `GOOGLE_REDIRECT_URI`. El README explica qué
+  hace falta para usar la app, trae el `git clone` y ya no describe el registro local del control.
+- **Textos legales** (Términos 0.7, Política 0.9, aprobados por el equipo): se guardan nombre y correo de
+  Google; acceso por internet mediante un túnel de Cloudflare, que trata esos datos según sus propios
+  términos y política de privacidad; sin IP en archivos; clave `repasai-carga-visor`; material «revisado por
+  el equipo, con autorización de la profesora del curso» (también en portada, catálogo y visor).
+- **Privacidad:** la app ya no escribe direcciones IP en `logs/studify.log` ni en el registro de accesos de la
+  consola; las páginas personales y el panel responden `Cache-Control: no-store`.
+- **Cuestionario y actividad:** el enlace de la cabecera conserva el borrador en la página de acceso; un doble
+  clic registra un solo intento; generar o leer una cápsula ya no devuelve al estudiante las claves de la
+  actividad (la descarga de sus datos se mantiene completa, por decisión del equipo); el perfil con empate lo
+  dice; se validan las opciones de los datos opcionales.
+- **Panel docente:** un archivo ilegible se explica en vez de fallar; no se crean objetivos en blanco ni
+  repetidos por mayúsculas; «Salir» vuelve a la portada y no se ofrecen destinos de estudiante; horas de
+  Chile; rótulos en español en el simulador.
+- **Errores:** páginas en español para quien navega (la API y HTMX no cambian), `/teacher` lleva al panel y
+  los números fuera de rango ya no dan 500.
+- **Textos:** concordancia de cantidades, retroalimentación de las tarjetas, ejemplos del material vigente.
+- **Pruebas:** la que dependía de las credenciales del `.env` ya no depende; `tests/test_correcciones_revision.py`
+  agrega los casos de cada corrección.
+
+### Lo que no se tocó
+
+Quedan documentados en `PENDIENTES.md`: RV-21 (doble generación al recargar), RV-23 (regla multimodal) y RV-30
+(comas en los datos del catálogo, que cambiarían huellas). No se modificaron el motor VARK ni las plantillas
+del prompt.
+
+### Cambios en datos y operación
+
+- **Fragmento 14751** (UX-06-01, página 3: título y un enlace de video). El 11-nov estaba pendiente y sin
+  objetivo; quedó validado después del piloto y con eso las cápsulas guardadas del tema dejaron de coincidir
+  con el caché. Se **descartó**, con un `pg_dump` previo. Fue el único cambio en la base principal. Después,
+  las 10 cápsulas de UX-06-01 coinciden con la huella vigente y el caché sirve cada una a su estudiante; en
+  total coinciden las 49 del piloto.
+- **Registros:** se quitaron de `logs/studify.log` las 5 líneas con dirección IP (las demás se conservan) y
+  se borraron los registros del túnel y de la consola.
+- **Confirmado por el equipo:** `client_secret` de Google rotado y análisis del piloto hecho. La app solo
+  corre en un equipo, así que las credenciales de otra máquina no aplican. Repetir la batería VARK (G1) se
+  descarta.
+
+### Verificación
+
+- **Suite**, con `LLM_API_KEY` vacía e ignorando `test_visual.py` y `test_voz.py`: con Postgres **917 pasan,
+  0 fallan** (también sin credenciales de Google en el entorno); sin base 560 / 353 / 4, los conocidos. Los
+  tres `.cjs` pasan. `ruff check .`: 201 avisos, uno menos que en §5.38 y ninguno nuevo.
+- Contra el código anterior, 55 de los casos nuevos fallan; los demás son controles de lo que no debía cambiar.
+- **Navegador** (Edge sin ventana, base temporal anonimizada, 390 y 1280 px, claro y oscuro): se repitieron
+  los pasos de cada hallazgo corregido; sin peticiones a terceros, desplazamiento horizontal, controles sin
+  nombre accesible ni contraste insuficiente.
+- Sin llamadas al modelo real.
+
+### Pendientes registrados
+
+- `PENDIENTES.md`: lista «Antes del piloto» revisada punto por punto, y O7, L9.
+- **Sin probar:** acceso con Google real, teléfono real, Safari y Firefox.
 
 ---
 

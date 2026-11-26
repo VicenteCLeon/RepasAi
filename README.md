@@ -99,6 +99,10 @@ $env:PGPASSWORD = 'postgres'
 ## 🚀 Puesta en marcha
 
 ```powershell
+# 0. Descargar el código
+git clone https://github.com/VicenteCLeon/RepasAi.git
+cd RepasAi
+
 # 1. Entorno virtual
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -134,11 +138,26 @@ buscan relativas al directorio de trabajo.
 **Verificación:** [`http://127.0.0.1:8000/`](http://127.0.0.1:8000/) (portada) ·
 [`/health`](http://127.0.0.1:8000/health) · [`/docs`](http://127.0.0.1:8000/docs)
 
+### Qué hace falta para usar la app
+
+Una instalación recién hecha arranca, pero está vacía. Para recorrerla:
+
+| Para | Hace falta |
+|---|---|
+| Entrar como estudiante, de cualquiera de los dos grupos | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y `GOOGLE_REDIRECT_URI` en `.env` (sección siguiente). No hay otra forma de entrar |
+| Abrir el panel docente (`/teacher`) | `TEACHER_PASSWORD` en `.env` |
+| Generar cápsulas | `LLM_API_KEY` en `.env` |
+| Tener temas | Cargar los objetivos desde un CSV con `python scripts/cargar_objetivos.py tus_objetivos.csv` (o crearlos uno a uno en el panel). Columnas: `codigo_objetivo,asignatura,unidad,tema` y, opcionales, `descripcion,nivel_taxonomico` |
+| Que un tema aparezca en el catálogo | Subir el PDF o PPTX en el panel, asignar cada fragmento a un objetivo y validarlo. El material del curso no se versiona: cada instalación carga el suyo, con autorización |
+
+Para mostrar la app a alguien que entra desde su propio dispositivo, sin instalar nada:
+[`docs/CHECKLIST_DEMO.md`](docs/CHECKLIST_DEMO.md).
+
 ### Inicio de sesión con Google
 
-El acceso de estudiantes está en `/student/login`. Permite recuperar el mismo
-perfil, cápsulas, intentos y grupo de estudio desde otro navegador. El grupo
-control conserva siempre su perfil general. El acceso docente usa sus
+El acceso de estudiantes está en `/student/login`. Los dos grupos entran solo
+con Google y eligen su grupo la primera vez; después recuperan el mismo perfil,
+cápsulas, intentos y grupo desde cualquier navegador. El acceso docente usa sus
 credenciales del panel.
 
 1. En Google Cloud, configura la pantalla de consentimiento de Google Auth y
@@ -165,9 +184,9 @@ perfiles por coincidencia de correo. Los registros antiguos sin una sesión
 válida no se pueden vincular automáticamente: el CSV original no identifica
 cuentas de Google.
 
-Para una cuenta nueva se completa el cuestionario VARK o el registro del grupo
-control y se registra la aceptación legal. Entrar con Google no acepta los
-documentos automáticamente. Puedes salir de RepasAi y volver a entrar con la
+Una cuenta nueva del grupo experimental responde el cuestionario VARK; una del
+grupo control completa su registro (datos opcionales). En los dos casos se pide
+la aceptación legal: entrar con Google no acepta los documentos. Puedes salir de RepasAi y volver a entrar con la
 misma cuenta; salir no desconecta la cuenta Google del navegador.
 
 **«Descubre tu estilo»** permite responder antes de iniciar sesión, pero no guarda
@@ -178,8 +197,8 @@ Una cuenta que ya tiene diagnóstico confirma su actualización; conserva sus
 datos demográficos anteriores. El grupo control no puede guardar VARK.
 Sin JavaScript, inicia sesión antes de responder para conservar las respuestas.
 
-Sin Client ID y Client Secret el acceso Google queda deshabilitado: se puede
-responder VARK, pero no guardarlo. El registro local de control permanece.
+Sin Client ID y Client Secret el acceso Google queda deshabilitado y nadie puede
+entrar como estudiante: se puede responder el cuestionario, pero no guardarlo.
 `SESSION_SECRET` debe ser estable para mantener las sesiones
 entre reinicios. Para desarrollo local usa `APP_ENV=dev`; en un despliegue usa
 HTTPS y registra también la URI exacta de ese despliegue. No mezcles `localhost`
@@ -217,7 +236,9 @@ $env:DATABASE_URL="postgresql+psycopg://studify:studify@localhost:5432/studify_t
 $env:LLM_API_KEY=""   # para no gastar en el proveedor
 .\.venv\Scripts\python -m pytest -q --ignore=tests/test_visual.py --ignore=tests/test_voz.py
 node tests/test_borrador_vark.cjs  # aislamiento del borrador entre cuentas (sin npm)
-ruff check .
+node tests/test_carga_visor.cjs    # duración mínima de la capa de carga
+node tests/test_muestras_voz.cjs   # muestras de voz (pytest también la corre)
+.\.venv\Scripts\ruff check .
 ```
 
 - La variable de entorno manda sobre el `.env`, así que la app sigue usando `studify` y solo esa

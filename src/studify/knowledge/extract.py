@@ -17,12 +17,16 @@ completo y deja de ser auditable en la práctica.
 """
 
 import hashlib
+import io
+import logging
 import re
 import unicodedata
 from collections import defaultdict
 from contextlib import suppress
 from dataclasses import dataclass, replace
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 # Un encabezado en PDF se detecta por tamaño de fuente relativo al cuerpo. Un
 # título real suele ser sensiblemente más grande; 1.15 deja pasar las negritas
@@ -44,6 +48,13 @@ FORMATOS_SOPORTADOS = (".pdf", ".pptx")
 
 class FormatoNoSoportado(ValueError):
     """El archivo no es PDF ni PPTX."""
+
+
+class ArchivoIlegible(ValueError):
+    """Tiene una extensión admitida, pero no se puede abrir (RV-07).
+
+    El mensaje lo lee el docente: dice qué pasa y, si se puede, qué hacer.
+    """
 
 
 @dataclass(frozen=True, slots=True)
@@ -113,6 +124,13 @@ def _es_titulo(texto: str, tamano: float, tamano_cuerpo: float) -> bool:
     return tamano >= tamano_cuerpo * FACTOR_TITULO
 
 
+def _leer(ruta: Path) -> bytes:
+    contenido = ruta.read_bytes()
+    if not contenido:
+        raise ArchivoIlegible(f"'{ruta.name}' está vacío.")
+    return contenido
+
+
 def extraer_pdf(ruta: Path) -> list[BloqueTexto]:
     """PDF → bloques, detectando encabezados por tamaño de fuente.
 
@@ -124,7 +142,14 @@ def extraer_pdf(ruta: Path) -> list[BloqueTexto]:
     import pymupdf
 
     bloques: list[BloqueTexto] = []
-    with pymupdf.open(ruta) as doc:
+    # Desde memoria y no desde la ruta: cuando MuPDF falla al abrir puede dejar
+    # el archivo tomado, y en Windows eso impide borrar la copia temporal.
+    with pymupdf.open(stream=_leer(ruta), filetype="pdf") as doc:
+        if doc.needs_pass:
+            raise ArchivoIlegible(
+                f"'{ruta.name}' está protegido con contraseña. Quítale la protección "
+                f"y vuelve a subirlo."
+            )
         # Primera pasada: repartir el "peso" de cada tamaño de fuente por
         # cantidad de caracteres. Ponderar por caracteres y no por cantidad de
         # spans evita que muchos títulos cortos desplacen al cuerpo real.
@@ -207,7 +232,7 @@ def extraer_pptx(ruta: Path) -> list[BloqueTexto]:
     from pptx import Presentation
 
     bloques: list[BloqueTexto] = []
-    presentacion = Presentation(str(ruta))
+    presentacion = Presentation(io.BytesIO(_leer(ruta)))
 
     for num_diapo, diapo in enumerate(presentacion.slides, start=1):
         forma_titulo = None
@@ -281,11 +306,20 @@ def marcar_repetidos(bloques: list[BloqueTexto]) -> list[BloqueTexto]:
 def extraer(ruta: Path) -> list[BloqueTexto]:
     """Despacha al extractor según la extensión del archivo."""
     sufijo = ruta.suffix.lower()
-    if sufijo == ".pdf":
-        return marcar_repetidos(extraer_pdf(ruta))
-    if sufijo == ".pptx":
-        return marcar_repetidos(extraer_pptx(ruta))
-    raise FormatoNoSoportado(
-        f"'{ruta.name}': formato {sufijo or '(sin extensión)'} no soportado. "
-        f"Formatos válidos: {', '.join(FORMATOS_SOPORTADOS)}"
-    )
+    extractor = {".pdf": extraer_pdf, ".pptx": extraer_pptx}.get(sufijo)
+    if extractor is None:
+        raise FormatoNoSoportado(
+            f"'{ruta.name}': formato {sufijo or '(sin extensión)'} no soportado. "
+            f"Formatos válidos: {', '.join(FORMATOS_SOPORTADOS)}"
+        )
+    try:
+        return marcar_repetidos(extractor(ruta))
+    except (ArchivoIlegible, ImportError):
+        # Sin el extra `ingest` el panel explica qué instalar: no es culpa del archivo.
+        raise
+    except Exception as exc:
+        logger.warning("no se pudo leer un documento %s: %s", sufijo, type(exc).__name__)
+        raise ArchivoIlegible(
+            f"'{ruta.name}' no se pudo abrir: está dañado, protegido o no es un "
+            f"{sufijo.lstrip('.').upper()} válido."
+        ) from exc

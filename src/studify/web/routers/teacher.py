@@ -29,7 +29,7 @@ from decimal import Decimal
 from urllib.parse import parse_qs, urlsplit
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import HTMLResponse, Response
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from pydantic import ValidationError
 from sqlalchemy import Float, cast, func, select
 from sqlalchemy.orm import Session, selectinload
@@ -56,6 +56,7 @@ from studify.db.models import (
 from studify.db.session import get_db
 from studify.generation.generator import ErrorGeneracion, generar
 from studify.knowledge import curation, tagger
+from studify.knowledge.ingest import DocumentoSinTexto
 from studify.rag import orchestrator, retriever
 from studify.vark.rules import aplicar_reglas
 from studify.vark.scoring import CANALES, PerfilVark
@@ -86,6 +87,12 @@ LIMITE_BANDEJA = 60
 MINIMO_RECOMENDADO = retriever.LIMITE_POR_DEFECTO // 2
 
 
+@router.get("", include_in_schema=False)
+def get_panel():
+    """`/teacher`, lo que se escribe a mano, lleva a la primera vista del panel."""
+    return RedirectResponse(url="/teacher/curation", status_code=303)
+
+
 @router.get("/curation", response_class=HTMLResponse)
 def get_curation(
     request: Request,
@@ -103,10 +110,12 @@ def get_curation(
 @router.post("/curation/objetivos", response_class=HTMLResponse)
 def crear_objetivo_web(
     request: Request,
-    codigo_objetivo: str = Form(...),
-    asignatura: str = Form(...),
-    unidad: str = Form(...),
-    tema: str = Form(...),
+    # Con `Form(...)` un campo vacío respondía 422 antes de llegar acá, y HTMX
+    # no mostraba nada: se aceptan vacíos y los rechaza `ObjetivoIn`.
+    codigo_objetivo: str = Form(default=""),
+    asignatura: str = Form(default=""),
+    unidad: str = Form(default=""),
+    tema: str = Form(default=""),
     descripcion: str = Form(default=""),
     nivel_taxonomico: str = Form(default=""),
     db: Session = Depends(get_db),
@@ -200,7 +209,7 @@ def delete_document(request: Request, id_documento: int, db: Session = Depends(g
         db,
         aviso=(
             "ok",
-            f"«{titulo}» se eliminó, con {total} fragmento(s). "
+            f"«{titulo}» se eliminó, con {textos.cuenta(total, 'fragmento')}. "
             f"Si lo necesitas, ya puedes volver a subir el archivo.",
         ),
     )
@@ -559,10 +568,16 @@ def upload_document(
     respuesta = _aviso(
         request,
         "ok",
-        f"«{resultado.titulo}» quedó ingerido: {resultado.total_fragmentos} "
-        f"fragmentos sobre {resultado.pagina_maxima} página(s), "
-        f"{resultado.palabras_totales} palabras. Todos están pendientes de "
-        f"revisión: ninguno llegará a una cápsula hasta que lo valides.",
+        f"«{resultado.titulo}» quedó ingerido: "
+        f"{textos.cuenta(resultado.total_fragmentos, 'fragmento')} sobre "
+        f"{textos.cuenta(resultado.pagina_maxima, 'página')}, "
+        f"{textos.cuenta(resultado.palabras_totales, 'palabra')}. "
+        + (
+            "Está pendiente de revisión: no llegará a una cápsula hasta que lo valides."
+            if resultado.total_fragmentos == 1
+            else "Todos están pendientes de revisión: ninguno llegará a una cápsula "
+            "hasta que lo valides."
+        ),
     )
     # La bandeja y la lista de documentos se recargan solas en vez de pedirle
     # al docente que refresque.
@@ -602,11 +617,16 @@ def tag_pending_fragments(
         exitosas = [s for s in sugerencias if s.ok and s.id_objetivo is not None]
         sin_propuesta = [s for s in sugerencias if s.ok and s.id_objetivo is None]
         fallidas = [s for s in sugerencias if not s.ok]
-        partes = [f"{len(exitosas)} de {len(sugerencias)} fragmentos con objetivo sugerido"]
+        partes = [
+            f"{len(exitosas)} de {textos.cuenta(len(sugerencias), 'fragmento')} "
+            f"con objetivo sugerido"
+        ]
         if sin_propuesta:
             partes.append(f"{len(sin_propuesta)} sin un objetivo claro (revísalos a mano)")
         if fallidas:
-            partes.append(f"{len(fallidas)} fallaron: {fallidas[0].error}")
+            partes.append(
+                f"{textos.cuenta(len(fallidas), 'falló', 'fallaron')}: {fallidas[0].error}"
+            )
         respuesta = _aviso(
             request,
             "ok" if exitosas else "error",
@@ -1077,7 +1097,7 @@ def _explicar_ingesta(exc: HTTPException) -> str:
         )
     if exc.status_code == 415:
         return f"{exc.detail}"
-    if exc.status_code == 422:
+    if exc.status_code == 422 and isinstance(exc.__cause__, DocumentoSinTexto):
         return (
             f"{exc.detail} Suele pasar con PDF escaneados (imágenes sin capa de "
             f"texto): no sirven para un RAG textual."

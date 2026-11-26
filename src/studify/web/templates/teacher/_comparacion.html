@@ -44,7 +44,7 @@
             <p class="comparacion-rotulo">Representación adaptativa + ejemplo</p>
             <div class="cluster cluster-sm mb-3">
                 {% for bloque in col.bloques %}
-                <span class="badge badge-primary">{{ bloque.tipo.replace('_', ' ') }}</span>
+                <span class="badge badge-primary">{{ NOMBRE_BLOQUE.get(bloque.tipo, bloque.tipo) }}</span>
                 {% endfor %}
             </div>
 
@@ -75,12 +75,12 @@
             {% endfor %}
 
             <p class="comparacion-rotulo">Actividad de cierre</p>
-            <span class="badge badge-warning mb-2">{{ col.capsula.actividad.tipo }}</span>
+            <span class="badge badge-warning mb-2">{{ NOMBRE_ACTIVIDAD.get(col.capsula.actividad.tipo, col.capsula.actividad.tipo) }}</span>
             <p class="text-sm">{{ col.capsula.actividad.pregunta }}</p>
 
             <p class="comparacion-pie">
-                {{ ui.icon("file-text", cls="icon-sm") }}{{ col.palabras }} palabras
-                · {{ ui.icon("quote", cls="icon-sm") }}{{ col.capsula.fuentes | length }} fuente(s)
+                {{ ui.icon("file-text", cls="icon-sm") }}{{ cuenta(col.palabras, 'palabra') }}
+                · {{ ui.icon("quote", cls="icon-sm") }}{{ cuenta(col.capsula.fuentes | length, 'fuente') }}
             </p>
             {% endif %}
         </article>

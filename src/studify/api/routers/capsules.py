@@ -28,6 +28,8 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, selectinload
@@ -242,13 +244,6 @@ def _buscar_en_cache(
 # --- Endpoint -----------------------------------------------------------------
 
 
-@router.post(
-    "",
-    response_model=CapsulaOut,
-    status_code=status.HTTP_201_CREATED,
-    summary="Genera (o recupera del caché) la microcápsula de un objetivo",
-    dependencies=[Depends(para_si_mismo)],
-)
 def crear_capsula(
     payload: CapsulaIn,
     regenerar: bool = Query(
@@ -435,12 +430,6 @@ def listar_capsulas(
     return list(db.scalars(stmt.limit(limite)).all())
 
 
-@router.get(
-    "/{id_capsula}",
-    response_model=CapsulaOut,
-    summary="Recupera una cápsula ya generada",
-    dependencies=[Depends(solo_su_capsula)],
-)
 def obtener_capsula(id_capsula: int, db: Session = Depends(get_db)) -> CapsulaOut:
     fila = db.get(MicrocapsulaGenerada, id_capsula)
     if fila is None:
@@ -449,6 +438,70 @@ def obtener_capsula(id_capsula: int, db: Session = Depends(get_db)) -> CapsulaOu
             detail=f"no existe la cápsula {id_capsula}",
         )
     return _a_salida(fila, origen="cache")
+
+
+# --- Lo que sale por la API ---------------------------------------------------
+#
+# `crear_capsula` y `obtener_capsula` devuelven la cápsula completa porque el
+# visor las llama como funciones y corrige contra ella. Por HTTP, el estudiante
+# no recibe las claves de la actividad (RV-15): con `indice_correcta` a la vista
+# el cuestionario dejaría de medir nada. El docente las recibe todas.
+
+CLAVES_DE_LA_ACTIVIDAD = ("indice_correcta", "retroalimentacion")
+CLAVES_DE_CADA_PREGUNTA = ("indice_correcta", "explicacion")
+
+
+def _responder(salida: CapsulaOut, solicitante: int | None, estado: int):
+    if solicitante is None:
+        return salida
+    cuerpo = jsonable_encoder(salida)
+    actividad = cuerpo["actividad"]
+    for clave in CLAVES_DE_LA_ACTIVIDAD:
+        actividad.pop(clave, None)
+    for pregunta in actividad.get("preguntas") or []:
+        for clave in CLAVES_DE_CADA_PREGUNTA:
+            pregunta.pop(clave, None)
+    # Directo y no por `response_model`: el contrato de la actividad exige las
+    # claves que acá se acaban de quitar.
+    return JSONResponse(cuerpo, status_code=estado)
+
+
+@router.post(
+    "",
+    response_model=CapsulaOut,
+    status_code=status.HTTP_201_CREATED,
+    summary="Genera (o recupera del caché) la microcápsula de un objetivo",
+    dependencies=[Depends(para_si_mismo)],
+)
+def post_capsula(
+    payload: CapsulaIn,
+    regenerar: bool = Query(
+        False,
+        description=(
+            "Fuerza una generación nueva ignorando el caché. La cápsula "
+            "anterior se conserva: no se sobrescribe, se versiona."
+        ),
+    ),
+    db: Session = Depends(get_db),
+    cliente: ClienteLLM | None = Depends(get_cliente_llm),
+    solicitante: int | None = Depends(auth.estudiante_o_docente_api),
+):
+    salida = crear_capsula(payload, regenerar=regenerar, db=db, cliente=cliente)
+    return _responder(salida, solicitante, status.HTTP_201_CREATED)
+
+
+@router.get(
+    "/{id_capsula}",
+    response_model=CapsulaOut,
+    summary="Recupera una cápsula ya generada",
+    dependencies=[Depends(solo_su_capsula)],
+)
+def leer_capsula(
+    id_capsula: int,
+    db: Session = Depends(get_db),
+    solicitante: int | None = Depends(auth.estudiante_o_docente_api),
+):
+    return _responder(obtener_capsula(id_capsula, db), solicitante, status.HTTP_200_OK)
 
 
 # --- Auxiliares ---------------------------------------------------------------

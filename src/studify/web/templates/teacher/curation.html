@@ -43,7 +43,10 @@
             <p class="text-sm text-muted mb-4">
                 <strong>Sin al menos uno no se puede validar nada</strong>, porque el retriever
                 recupera por objetivo. Para cargar un plan de estudios completo de una vez está
-                <code>python scripts/cargar_objetivos.py data/objetivos.csv</code>.
+                <code>python scripts/cargar_objetivos.py tus_objetivos.csv</code>, con las
+                columnas <code>codigo_objetivo</code>, <code>asignatura</code>, <code>unidad</code>
+                y <code>tema</code> (opcionales: <code>descripcion</code> y
+                <code>nivel_taxonomico</code>).
             </p>
             <form hx-post="/teacher/curation/objetivos" hx-target="#objetivo-status">
                 <div class="form-grid form-grid-sm">

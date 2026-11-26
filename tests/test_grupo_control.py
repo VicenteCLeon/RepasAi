@@ -14,6 +14,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import func, select
 
+from studify.config import get_settings
 from studify.db.models import DiagnosticoVark, Estudiante, MicrocapsulaGenerada
 from studify.main import app
 from studify.vark.scoring import PerfilVark
@@ -265,8 +266,13 @@ def test_registro_control_no_cambia_rol_de_sesion_abierta(navegador_control):
 
 
 @necesita_bd
-def test_computador_compartido_conserva_entrada_control(db, navegador_control):
+def test_computador_compartido_conserva_entrada_control(db, navegador_control, monkeypatch):
     """«Soy otra persona» desde el control lleva al acceso Google con Control elegido."""
+    # El selector de grupo solo se dibuja con Google configurado: credenciales
+    # ficticias para no depender del `.env` de cada máquina (RV-09).
+    ajustes = get_settings()
+    monkeypatch.setattr(ajustes, "google_client_id", "cliente-de-prueba.apps.googleusercontent.com")
+    monkeypatch.setattr(ajustes, "google_client_secret", "secreto-de-prueba")
     cliente, id_primero = navegador_control
     html = cliente.get("/student/control").text
     assert "/student/salir?grupo=control" in html

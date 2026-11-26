@@ -6,6 +6,8 @@
 
 {% block content %}
 {%- set primario = jerarquia.canal_primario -%}
+{# Los canales que se resaltan: el principal, o todos los empatados (RV-14). #}
+{%- set destacados = empatados or [primario] -%}
 
 {# Porcentaje por letra, para el radar (los `canales` vienen ordenados de
 mayor a menor, que es lo que quieren las barras, no el gráfico). #}
@@ -24,14 +26,20 @@ como un punto en el centro. #}
     <header class="perfil-head reveal">
         <span class="eyebrow">{{ ui.icon("circle-user", cls="icon-sm") }}Tu perfil de aprendizaje</span>
         <h1>
+            {% if empatados %}
+            {{ titulo_empate }}
+            {% else %}
             Tu canal principal es
             <span class="perfil-canal" data-canal="{{ primario }}">{{ canal_principal }}</span>
+            {% endif %}
         </h1>
         <p class="perfil-bajada">Así es como procesas mejor la información.</p>
         <div class="cluster cluster-sm">
             <span class="badge badge-primary">{{ ui.icon("layers") }}{{ modalidad }}</span>
+            {# La flecha ordena los canales: con empate en el máximo no se muestra. #}
+            {% if not empatados %}
             <span class="badge badge-neutral">Jerarquía {{ jerarquia.jerarquia }}</span>
-            <span class="badge badge-neutral">{{ ui.icon("hash") }}Diagnóstico #{{ id_diagnostico }}</span>
+            {% endif %}
         </div>
     </header>
 
@@ -59,7 +67,7 @@ como un punto en el centro. #}
                         points="{% for l in 'VARK' %}{{ px[l][0] | round(2) }},{{ px[l][1] | round(2) }} {% endfor %}" />
                     {% for l in 'VARK' %}
                     <circle data-canal="{{ l }}" cx="{{ px[l][0] | round(2) }}" cy="{{ px[l][1] | round(2) }}"
-                        r="{{ 7 if l == primario else 5 }}" />
+                        r="{{ 7 if l in destacados else 5 }}" />
                     {% endfor %}
                 </g>
 
@@ -83,14 +91,14 @@ como un punto en el centro. #}
             <h2 id="barras-titulo" class="card-title mb-4">Tus porcentajes</h2>
             <ul class="perfil-barras" role="list">
                 {% for canal in canales %}
-                <li class="perfil-barra {% if canal.canal == primario %}is-primario{% endif %}"
+                <li class="perfil-barra {% if canal.canal in destacados %}is-primario{% endif %}"
                     data-canal="{{ canal.canal }}">
                     {{ ui.vark_tile(canal.canal) }}
                     <div class="perfil-barra-cuerpo">
                         <div class="perfil-barra-top">
                             <span class="perfil-barra-nombre">
                                 {{ canal.nombre }}
-                                {% if canal.canal == primario %}<span class="badge badge-accent">Principal</span>{%
+                                {% if canal.canal in destacados %}<span class="badge badge-accent">{{ "Empate" if empatados else "Principal" }}</span>{%
                                 endif %}
                             </span>
                             <span class="perfil-barra-valor">{{ canal.texto }}%</span>
@@ -132,12 +140,12 @@ como un punto en el centro. #}
             <div class="stat">
                 {{ ui.icon("eye", cls="stat-icon") }}
                 <span class="stat-value">{{ config.recursos_visuales }}</span>
-                <span class="stat-label">recursos visuales</span>
+                <span class="stat-label">{{ "recurso visual" if config.recursos_visuales == 1 else "recursos visuales" }}</span>
             </div>
             <div class="stat">
                 {{ ui.icon("hand", cls="stat-icon") }}
                 <span class="stat-value">{{ config.componentes_practicos }}</span>
-                <span class="stat-label">componentes prácticos</span>
+                <span class="stat-label">{{ "componente práctico" if config.componentes_practicos == 1 else "componentes prácticos" }}</span>
             </div>
             <div class="stat">
                 {{ ui.icon("message-circle", cls="stat-icon") }}

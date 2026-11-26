@@ -11,13 +11,14 @@ juntos, que es la única forma de que la demo y la API no se contradigan.
 """
 
 import logging
+from datetime import timedelta
 from decimal import Decimal
 from html import escape
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from pydantic import ValidationError
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from studify.api.routers.capsules import (
@@ -41,6 +42,7 @@ from studify.api.schemas_capsulas import CapsulaIn
 from studify.db.models import (
     Estudiante,
     Fragmento,
+    InteraccionQuiz,
     MicrocapsulaGenerada,
     ObjetivoAprendizaje,
 )
@@ -67,6 +69,8 @@ router = APIRouter(
 )
 
 LETRAS = ("a", "b", "c", "d")
+# Dos envíos iguales a menos de esto son un doble clic (RV-10).
+SEGUNDOS_DOBLE_CLIC = 2
 
 # Distingue la presentación del primer perfil y de una actualización (R2).
 # Guardar exige además Google y el token del formulario ligado a esa cuenta.
@@ -269,6 +273,8 @@ def post_vark(
             "Alguno de los datos personales excede el largo permitido. "
             "Puedes dejarlos en blanco: son opcionales."
         )
+    if not _opciones_validas(rango_etario, genero):
+        return _error(OPCION_DESCONOCIDA)
 
     if actual is None or not actual.google_sub:
         if request.headers.get("HX-Request") == "true":
@@ -310,6 +316,23 @@ def post_vark(
     respuesta.delete_cookie(google_login.COOKIE_VARK, path="/student")
     sesion.iniciar(respuesta, estudiante)
     return respuesta
+
+
+OPCION_DESCONOCIDA = (
+    "El rango etario o el género no son opciones del formulario. "
+    "Puedes dejarlos en blanco: son opcionales."
+)
+
+
+def _opciones_validas(rango_etario: str, genero: str) -> bool:
+    """Vacío o una de las opciones que ofrece el formulario (RV-20).
+
+    Solo para la web: la API y la importación del CSV conservan sus valores.
+    """
+    return rango_etario.strip() in ("", *textos.RANGOS_ETARIOS) and genero.strip() in (
+        "",
+        *textos.GENEROS,
+    )
 
 
 def _respuestas_desde_formulario(marcadas: tuple[list[str], ...]) -> list[RespuestaItemIn]:
@@ -450,6 +473,8 @@ def post_control(
         )
     except ValidationError:
         return _error("Alguno de los datos opcionales excede el largo permitido.")
+    if not _opciones_validas(rango_etario, genero):
+        return _error(OPCION_DESCONOCIDA)
     estudiante = actual
     for campo, valor in datos.model_dump().items():
         setattr(estudiante, campo, valor)
@@ -555,13 +580,21 @@ def get_profile(request: Request, db: Session = Depends(get_db)):
     # que la pantalla no pueda diferir de lo que el motor va a usar.
     fila = diagnostico.configuracion if diagnostico else None
 
-    explicacion = textos.EXPLICACION_CANAL[jerarquia.canal_primario]
-    if jerarquia.es_multimodal:
-        explicacion = f"{explicacion} {textos.EXPLICACION_MULTIMODAL}"
+    # El empate se mira en los puntajes: al normalizar a porcentajes, un triple
+    # empate queda 33,34 / 33,33 / 33,33.
+    empatados = _canales_empatados(diagnostico)
+    if empatados:
+        explicacion = textos.explicacion_de_empate(empatados, jerarquia.canal_primario)
+    else:
+        explicacion = textos.EXPLICACION_CANAL[jerarquia.canal_primario]
+        if jerarquia.es_multimodal:
+            explicacion = f"{explicacion} {textos.EXPLICACION_MULTIMODAL}"
 
     contexto = {
         "canales": _barras(perfil),
         "canal_principal": textos.NOMBRE_CANAL[jerarquia.canal_primario],
+        "empatados": empatados,
+        "titulo_empate": textos.titulo_de_empate(empatados) if empatados else None,
         "jerarquia": jerarquia,
         "nombre_canal": textos.NOMBRE_CANAL,
         "modalidad": _modalidad(jerarquia),
@@ -590,6 +623,21 @@ def get_profile(request: Request, db: Session = Depends(get_db)):
     return templates.TemplateResponse(
         request=request, name="student/profile.html", context=contexto
     )
+
+
+def _canales_empatados(diagnostico) -> list[str]:
+    """Los canales que comparten el puntaje más alto, o ninguno si hay un solo máximo."""
+    if diagnostico is None:
+        return []
+    puntajes = {
+        "V": diagnostico.puntaje_v,
+        "A": diagnostico.puntaje_a,
+        "R": diagnostico.puntaje_r,
+        "K": diagnostico.puntaje_k,
+    }
+    maximo = max(puntajes.values())
+    empatados = [canal for canal, puntaje in puntajes.items() if puntaje == maximo]
+    return empatados if len(empatados) > 1 else []
 
 
 def _sin_sesion() -> RedirectResponse:
@@ -944,8 +992,11 @@ def submit_activity(
         return _feedback(
             request,
             estado="ok",
-            titulo="¡Sesión de Flashcards completada!",
-            retroalimentacion="Has ejercitado el recuerdo activo (Active Recall) de los conceptos fundamentales. ¡Excelente trabajo de práctica kinestésica!",
+            titulo="¡Repaso con tarjetas completado!",
+            retroalimentacion=(
+                "Repasaste las tarjetas de este tema. Si alguna te costó, vuelve a "
+                "recorrerlas antes de seguir con otro."
+            ),
         )
 
     if quiz.get("tipo") in TIPOS_CUESTIONARIO:
@@ -1018,15 +1069,48 @@ def _registrar_intento(db: Session, fila: MicrocapsulaGenerada, correccion: Corr
     `POST /api/capsulas/{id}/quiz`, así que la API y el visor no pueden medir
     con criterios distintos.
 
+    Un envío idéntico al anterior dentro de `SEGUNDOS_DOBLE_CLIC` no se anota:
+    es un doble clic, e inflaba los reintentos del panel y del CSV (RV-10).
+
     El dueño ya lo verificó `submit_activity` antes de corregir. Lo único que
     puede fallar es el 409 de dos peticiones simultáneas —el doble clic—, y en
     ese caso el intento que llegó primero ya quedó registrado. Perder el
     duplicado no vale interrumpirle la retroalimentación al estudiante.
     """
+    if _es_doble_clic(db, fila.id_capsula, correccion):
+        return
     try:
         registrar_intento(db, fila, correccion)
     except HTTPException:
         logger.warning("no se pudo registrar el intento de la cápsula %s", fila.id_capsula)
+
+
+def _es_doble_clic(db: Session, id_capsula: int, correccion: Correccion) -> bool:
+    """Si la misma respuesta a la misma cápsula acaba de quedar registrada.
+
+    La ventana se mide con el reloj de la base, el mismo que fecha los intentos.
+    """
+    ultimo = db.scalars(
+        select(InteraccionQuiz)
+        .where(
+            InteraccionQuiz.id_capsula == id_capsula,
+            InteraccionQuiz.fecha_respuesta
+            > func.now() - timedelta(seconds=SEGUNDOS_DOBLE_CLIC),
+        )
+        .order_by(InteraccionQuiz.numero_intento.desc())
+        .limit(1)
+    ).first()
+    return ultimo is not None and (
+        ultimo.alternativa_seleccionada,
+        ultimo.es_correcta,
+        ultimo.aciertos,
+        ultimo.detalle_json,
+    ) == (
+        correccion.alternativa,
+        correccion.es_correcta,
+        correccion.aciertos,
+        correccion.detalle,
+    )
 
 
 def _preparar_bloques(contenido: list[BloqueContenido]) -> list[dict]:
@@ -1103,9 +1187,8 @@ def _explicar_fallo(exc: HTTPException) -> tuple[str, str]:
     if exc.status_code == 503:
         return (
             "Falta configurar el modelo de lenguaje",
-            "El sistema no tiene credencial del LLM (`LLM_API_KEY` en el .env), "
-            "así que no puede generar cápsulas nuevas. Las que ya estén "
-            "generadas se siguen mostrando.",
+            "Ahora no se pueden generar cápsulas nuevas; las que ya estén "
+            "generadas se siguen mostrando. Avísale al equipo de RepasAi.",
         )
     if exc.status_code == 502:
         return (

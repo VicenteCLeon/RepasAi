@@ -33,6 +33,7 @@
         <li>Los dos grupos del piloto <strong>entran con Google</strong> y sus participantes eligen su grupo al registrarse. El <strong>grupo experimental</strong> recibe cápsulas adaptadas a su perfil VARK; el <strong>grupo control</strong> recibe un resumen estándar del material, igual para todos, no responde el cuestionario VARK y estudia sin narración. Guardamos el identificador, nombre y correo verificado de Google para recuperar tu perfil. No pedimos RUT ni tu contraseña de Google.</li>
         <li>Guardamos tus respuestas al cuestionario VARK, tu perfil, las cápsulas que abres y tus intentos en las actividades. La edad, el género y la carrera son <strong>opcionales</strong>.</li>
         <li>Al proveedor de IA <strong>no le enviamos ningún dato tuyo</strong>: solo el material del curso y los parámetros de formato que salen de tu perfil, sin nada que te identifique.</li>
+        <li>RepasAi se abre por internet mediante un <strong>túnel de Cloudflare</strong>, que transporta cada conexión (sección 6).</li>
         <li>Puedes ver, descargar, corregir o eliminar tus datos en <a href="/mis-datos">Mis datos</a> (sección 9).</li>
     </ul>
     {% endcall %}
@@ -107,7 +108,7 @@
                     <td data-label="¿Obligatorio?">Sí, para entrar en cualquiera de los dos grupos. Los registros sin Google creados antes se conservan</td>
                 </tr>
                 <tr>
-                    <td data-label="Dato"><strong>Rango de edad y carrera</strong></td>
+                    <td data-label="Dato"><strong>Rango etario y carrera</strong></td>
                     <td data-label="De dónde sale">Tú, en el cuestionario</td>
                     <td data-label="¿Obligatorio?">No</td>
                 </tr>
@@ -138,7 +139,7 @@
                     <td data-label="¿Obligatorio?">Sí</td>
                 </tr>
                 <tr>
-                    <td data-label="Dato"><strong>Dirección IP</strong> y datos técnicos de cada petición (ruta, hora, resultado)</td>
+                    <td data-label="Dato"><strong>Dirección IP</strong> y datos técnicos de cada petición (ruta, hora, resultado). RepasAi no guarda la IP en archivos (sección 8)</td>
                     <td data-label="De dónde sale">Tu navegador, al conectarse</td>
                     <td data-label="¿Obligatorio?">Sí (técnicamente necesario)</td>
                 </tr>
@@ -146,14 +147,15 @@
         </table>
     </div>
     <p>
-        <strong>No recolectamos</strong> tu nombre, correo, RUT, teléfono, fotografía ni tu ubicación, y no
+        <strong>Guardamos tu nombre y tu correo verificado</strong>: los entrega Google cuando entras con tu
+        cuenta. <strong>No pedimos ni guardamos</strong> tu RUT, teléfono, fotografía ni tu ubicación, y no
         usamos herramientas de analítica, publicidad ni rastreo.
     </p>
     <p>
         Si respondiste el <strong>cuestionario piloto</strong> en Google Forms
-        (a fines de mayo de 2026), tus respuestas, rango de edad, género, carrera y
+        (a fines de mayo de 2026), tus respuestas, rango etario, género, carrera y
         año de carrera se incorporaron a RepasAi con el mismo tratamiento descrito aquí. El archivo importado
-        no incluye nombre ni correo. Si respondiste ese cuestionario y quieres que eliminemos tus respuestas, escríbenos: como el formulario no pedía datos de contacto, indícanos tu carrera, tu rango de edad y la fecha aproximada en que respondiste para encontrarlas. Los cuestionarios previos y posteriores que se apliquen más adelante en el proyecto informarán su propio tratamiento al momento de responderlos.
+        no incluye nombre ni correo. Si respondiste ese cuestionario y quieres que eliminemos tus respuestas, escríbenos: como el formulario no pedía datos de contacto, indícanos tu carrera, tu rango etario y la fecha aproximada en que respondiste para encontrarlas. Los cuestionarios previos y posteriores que se apliquen más adelante en el proyecto informarán su propio tratamiento al momento de responderlos.
     </p>
     <p>
         Aunque no sepamos tu nombre, estos datos <strong>siguen siendo datos personales</strong>: están
@@ -182,13 +184,14 @@
             intervienen en cómo se genera tu contenido. Para el género, la base es tu <strong>consentimiento
             expreso y separado</strong>, porque la ley lo considera un dato sensible.
         </li>
-        <li><strong>Recuperar tu perfil con Google</strong>, si eliges esta opción:
-            vincular su identificador estable al mismo registro, verificar el acceso y mostrarte
-            qué cuenta vinculaste. El nombre y el correo no modifican tu perfil VARK ni tu grupo.</li>
+        <li><strong>Identificarte y recuperar tu perfil con Google</strong>:
+            vincular su identificador estable a tu registro, verificar el acceso, mostrarte
+            qué cuenta vinculaste y poder contactarte por tus datos. El nombre y el correo no
+            modifican tu perfil VARK ni tu grupo.</li>
         <li>
-            <strong>Seguridad</strong>: registrar intentos fallidos de acceso al panel docente y la IP de las
-            peticiones para detectar abusos. Base: el <strong>interés legítimo</strong> de proteger el servicio y
-            tus datos.
+            <strong>Seguridad</strong>: anotar, sin la dirección IP, que hubo intentos fallidos de acceso al
+            panel docente, y usar la IP solo en la memoria del servidor para frenar los intentos repetidos.
+            Base: el <strong>interés legítimo</strong> de proteger el servicio y tus datos.
         </li>
     </ul>
     <p>
@@ -228,7 +231,7 @@
     <p>Lo que <strong>sí</strong> le enviamos en cada generación:</p>
     <ul>
         <li>la asignatura, la unidad, el tema y la descripción del objetivo de aprendizaje;</li>
-        <li>los fragmentos del material del curso revisados por el equipo docente, con su documento y página;</li>
+        <li>los fragmentos del material del curso, revisados por el equipo, con autorización de la profesora del curso, con su documento y página;</li>
         <li>instrucciones de formato derivadas de tu perfil: cuatro pesos de énfasis (texto, visual, narrativo y práctico), la extensión aproximada, el tono y qué tipo de bloques incluir.</li>
     </ul>
     <p>Lo que <strong>no</strong> le enviamos: tu número de estudiante, tu nombre, correo o identificador de Google, tu edad, género o carrera, tus respuestas al cuestionario, tus resultados en las actividades, tu IP ni ninguna cookie. La conexión la hace nuestro servidor, así que el proveedor no ve tu dirección IP.</p>
@@ -242,7 +245,7 @@
     </p>
     <p>
         La <strong>narración de audio</strong> la generan modelos de voz (Kokoro y Piper) que corren en nuestro
-        propio servidor: el texto no sale a ningún tercero. Las voces son sintéticas y vienen incluidas en esos
+        propio servidor: el texto no se envía a ningún servicio externo de voz. Las voces son sintéticas y vienen incluidas en esos
         modelos; no son la voz de ningún docente ni estudiante. La voz que eliges se guarda como preferencia
         (sección 2) y solo se usa para narrar tus cápsulas.
     </p>
@@ -252,8 +255,26 @@
     <h2 id="terceros-t">6. Con quién más se comparten</h2>
     <p>
         Las tipografías, los íconos y las bibliotecas de la página se sirven desde nuestro propio
-        servidor, de modo que ningún tercero (como Google Fonts o una red de distribución de contenido) recibe tu
-        IP al abrir RepasAi.
+        servidor: al abrir RepasAi tu navegador no pide nada a otros sitios, como Google Fonts. El único
+        intermediario de la conexión es Cloudflare.
+    </p>
+    <h3 id="cloudflare">Acceso por internet: Cloudflare</h3>
+    <p>
+        RepasAi se ejecuta en los equipos de los desarrolladores. Para que los participantes del piloto
+        entraran desde sus propios dispositivos se publicó en internet mediante un <strong>túnel de
+        Cloudflare</strong> (Cloudflare Tunnel), y así se sigue accediendo.
+    </p>
+    <p>
+        Cloudflare transporta cada petición entre tu navegador y nuestro equipo, por lo que recibe tu
+        dirección IP, los datos técnicos de la conexión y el contenido que viaja en ella, incluidas las
+        cookies. La conexión usa HTTPS entre tu navegador y Cloudflare, y va cifrada por el túnel hasta
+        nuestro equipo. Cloudflare es una empresa con sede en Estados Unidos y una red mundial, así que esos
+        datos pueden pasar por servidores fuera de Chile.
+    </p>
+    <p>
+        <strong>Cloudflare trata esos datos según sus propios términos y su política de privacidad.</strong>
+        Consulta los <a href="https://www.cloudflare.com/website-terms/" target="_blank" rel="noopener">Términos de Cloudflare</a>
+        y la <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Política de Privacidad de Cloudflare</a>.
     </p>
     <h3 id="google">Acceso con Google</h3>
     <p>Los dos grupos del piloto entran con Google y eligen su grupo al registrarse.
@@ -271,8 +292,8 @@
         El registro temporal del acceso vence a los diez minutos: se consume al volver de
         Google o se elimina al iniciar otro acceso una vez vencido. No contiene nombre ni correo.</p>
     <p>
-        Los datos se almacenan en una base de datos PostgreSQL en un entorno local, en los equipos de los desarrolladores, sin acceso público desde internet.
-        No hay un proveedor de alojamiento externo ni otros encargados del tratamiento.
+        Los datos se almacenan en una base de datos PostgreSQL en los equipos de los desarrolladores. La base no está
+        expuesta a internet: el túnel publica solo la aplicación web. No hay un proveedor de alojamiento externo.
     </p>
     <p>Solo entregaríamos datos a una autoridad cuando una ley o una resolución judicial lo exija.</p>
 </section>
@@ -339,6 +360,12 @@
                     <td data-label="Para qué">Guardar tus respuestas a medio camino si recargas el cuestionario. Una marca de sesión impide restaurarlas para otra cuenta. No sale de tu navegador hasta que lo envías.</td>
                     <td data-label="Duración">Se borra al enviar el cuestionario, al salir o al cerrar la pestaña</td>
                 </tr>
+                <tr>
+                    <td data-label="Nombre"><code>repasai-carga-visor</code></td>
+                    <td data-label="Tipo">Almacenamiento de sesión (sessionStorage)</td>
+                    <td data-label="Para qué">Recordar el momento en que abriste un tema, con su código y nombre, para que la animación de carga dure un mínimo. No sale de tu navegador.</td>
+                    <td data-label="Duración">Se borra al llegar a la cápsula o al cerrar la pestaña</td>
+                </tr>
             </tbody>
         </table>
     </div>
@@ -354,7 +381,11 @@
         </li>
         <li>Si pides eliminar tus datos, los borramos antes, salvo que una ley nos obligue a conservar algo.</li>
         <li>
-            <strong>Registros técnicos</strong> (IP y peticiones): no se guardan en archivo; solo aparecen en la consola del servidor mientras está en ejecución y se pierden al cerrarla.
+            <strong>Registros técnicos</strong>: RepasAi anota errores y avisos en un archivo del servidor, con el
+            número de estudiante cuando corresponde y <strong>sin direcciones IP</strong>; el archivo se va
+            reemplazando a medida que se llena. La consola del servidor muestra las peticiones sin la IP. La IP se
+            usa solo en memoria, para frenar intentos repetidos de acceso al panel docente. Cloudflare registra
+            datos técnicos de las conexiones según su propia política.
         </li>
         <li>Las <strong>cookies</strong> duran lo indicado en la sección 7.</li>
     </ul>
@@ -381,7 +412,7 @@
     </p>
     <ul>
         <li><strong>ver</strong> lo que guardamos y <strong>descargarlo</strong> completo en un archivo JSON (acceso y portabilidad);</li>
-        <li><strong>corregir o borrar</strong> tu rango de edad, género y carrera, y retirar la autorización para usar tu género (rectificación);</li>
+        <li><strong>corregir o borrar</strong> tu rango etario, género y carrera, y retirar la autorización para usar tu género (rectificación);</li>
         <li><strong>cambiar tu preferencia de voz</strong> cuando quieras, desde el visor o tu perfil;</li>
         <li><strong>eliminar todos tus datos</strong> de forma definitiva (supresión).</li>
     </ul>
@@ -395,9 +426,11 @@
         Te responderemos en un plazo de 15 días hábiles como máximo.
     </p>
     <p>
-        <strong>Cómo te identificamos.</strong> Como no te pedimos nombre ni correo, la única forma de saber qué
-        datos son tuyos es la sesión de tu navegador. Si borraste la cookie o cambiaste de dispositivo, puede que
-        no podamos encontrar tus datos: en ese caso te explicaremos por qué no pudimos atender la solicitud.
+        <strong>Cómo te identificamos.</strong> Guardamos el nombre y el correo verificado de tu cuenta de
+        Google: entra con ella para usar «Mis datos», o escríbenos desde ese correo. Los registros creados sin
+        Google, incluidos los del cuestionario piloto, no tienen nombre ni correo: en esos casos solo podemos
+        reconocerlos por la sesión del navegador o por lo que nos indiques (sección 2). Si no podemos encontrar
+        tus datos, te explicaremos por qué no pudimos atender la solicitud.
     </p>
 </section>
 
@@ -408,17 +441,17 @@
         <li><strong>Minimización</strong>: no pedimos RUT; recibimos nombre y correo solo al entrar con Google. Los datos sociodemográficos son opcionales.</li>
         <li><strong>Sesiones firmadas</strong>: las cookies llevan una firma criptográfica (HMAC-SHA256), no son legibles por scripts de la página y no se envían desde sitios de terceros.</li>
         <li><strong>Control de acceso</strong>: cada estudiante solo puede ver y usar sus propios datos; el panel docente exige credencial, tiene un freno contra intentos repetidos y su sesión vence a las 12 horas.</li>
-        <li><strong>Sin terceros en la página</strong>: no se cargan recursos de otros dominios.</li>
+        <li><strong>Sin terceros en la página</strong>: no se cargan recursos de otros dominios. La conexión pasa por el túnel de Cloudflare (sección 6).</li>
         <li><strong>Al proveedor de IA no llegan datos personales</strong> (sección 5).</li>
     </ul>
     <p>
-        RepasAi se ejecuta en un entorno local, en los equipos de los desarrolladores y sin acceso público desde internet: solo ellos tienen acceso al servidor y a la base de datos. Por ser local, la conexión no usa HTTPS y la base de datos no está cifrada ni tiene respaldos externos.
+        RepasAi se ejecuta en los equipos de los desarrolladores y se publica en internet mediante el túnel de Cloudflare (sección 6), solo mientras el túnel está activo. La conexión por el túnel usa HTTPS. Solo los autores tienen acceso al equipo y a la base de datos, que no está cifrada ni tiene respaldos externos.
     </p>
     <p>
         Ningún sistema es completamente seguro. Si ocurre una vulneración de seguridad que afecte tus datos, la
         notificaremos a la Agencia de Protección de Datos Personales y, cuando la ley lo exija, también a los
-        afectados. Como no tenemos tu correo, el aviso a los titulares será mediante un aviso visible en RepasAi
-        y por los canales del curso. Ante cualquier sospecha, revisaremos el incidente de inmediato, tomaremos medidas para contenerlo y haremos la notificación sin dilaciones indebidas.
+        afectados. A los titulares les avisaremos al correo de su cuenta de Google, si lo tenemos, además de un
+        aviso visible en RepasAi y por los canales del curso. Ante cualquier sospecha, revisaremos el incidente de inmediato, tomaremos medidas para contenerlo y haremos la notificación sin dilaciones indebidas.
     </p>
 </section>
 

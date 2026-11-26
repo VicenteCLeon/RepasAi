@@ -259,7 +259,8 @@ def test_el_perfil_muestra_el_vector_y_la_configuracion_guardados(
     assert "Lectura / Escritura" in html
     assert "100,0%" in html
     assert str(config.palabras_texto) in html
-    assert f"Diagnóstico #{diagnostico.id_diagnostico}" in html
+    # El número interno del diagnóstico no le dice nada al estudiante (RV-32).
+    assert f"Diagnóstico #{diagnostico.id_diagnostico}" not in html
     # Las directivas que el prompt maestro va a recibir, en lenguaje legible.
     assert "Glosario de términos clave" in html
 

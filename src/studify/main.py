@@ -15,8 +15,8 @@ from studify.api.routers import capsules, diagnostics, knowledge
 from studify.config import get_settings, verificar_configuracion
 from studify.db.session import engine, get_db
 from studify.media import muestras
-from studify.registro import configurar_registro
-from studify.web import sesion
+from studify.registro import configurar_registro, ocultar_direcciones_en_accesos
+from studify.web import errores, privacidad, sesion
 from studify.web.deps import templates
 from studify.web.routers import auth, google_login, legal, student, teacher
 
@@ -28,6 +28,7 @@ verificar_configuracion(settings)
 # logs/studify.log: un fallo de generación no deja ninguna fila en la base.
 if settings.log_archivo:
     configurar_registro()
+ocultar_direcciones_en_accesos()
 
 app = FastAPI(
     title="Studify",
@@ -37,6 +38,11 @@ app = FastAPI(
     ),
     version="0.1.0",
 )
+
+# Las páginas con datos de una persona no se guardan en el navegador: sin esto,
+# «atrás» después de «Salir» mostraba las de quien usó antes el computador.
+app.add_middleware(privacidad.SinCacheEnPaginasPersonales)
+errores.registrar(app)
 
 app.include_router(diagnostics.router)
 app.include_router(knowledge.router)

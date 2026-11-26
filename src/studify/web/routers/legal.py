@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 
 from studify.db.models import Estudiante, MicrocapsulaGenerada
 from studify.db.session import get_db
-from studify.web import consentimiento, exportacion, legal, narracion, sesion
+from studify.web import consentimiento, exportacion, legal, narracion, sesion, textos
 from studify.web.deps import templates
 
 logger = logging.getLogger(__name__)
@@ -107,14 +107,10 @@ def post_aceptar(
 #
 # Fuera del guardián de aceptación a propósito: ejercer los derechos no puede
 # quedar condicionado a aceptar primero la versión nueva de los documentos.
-# El estudiante se identifica con su cookie firmada —no hay otra forma, porque
-# no pedimos nombre ni correo— y cada acción toca solo sus propios datos.
+# El estudiante se identifica con su cookie firmada (la que deja el acceso con
+# Google) y cada acción toca solo sus propios datos.
 # Los POST van con formulario normal: la cookie es `samesite=lax`, así que un
 # sitio de terceros no puede disparar el borrado en nombre del estudiante.
-
-RANGOS_ETARIOS = ("18 - 20 años", "21 - 23 años", "24 - 26 años", "27 años o más")
-GENEROS = ("Femenino", "Masculino", "No Binario / otra identidad")
-
 
 def _sin_sesion_para_datos(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
@@ -137,8 +133,8 @@ def _pantalla_mis_datos(
         context={
             "estudiante": estudiante,
             "datos": datos,
-            "rangos": RANGOS_ETARIOS,
-            "generos": GENEROS,
+            "rangos": textos.RANGOS_ETARIOS,
+            "generos": textos.GENEROS,
             "aviso": aviso,
             "error": error,
         },
@@ -195,7 +191,9 @@ def post_rectificar(
     estudiante = db.get(Estudiante, id_estudiante)
 
     rango, gen, car = rango_etario.strip(), genero.strip(), carrera.strip()
-    invalido = (rango and rango not in RANGOS_ETARIOS) or (gen and gen not in GENEROS)
+    invalido = (rango and rango not in textos.RANGOS_ETARIOS) or (
+        gen and gen not in textos.GENEROS
+    )
     if invalido or len(car) > 80:
         return _pantalla_mis_datos(
             request, db, estudiante, error="Alguno de los valores no es válido."

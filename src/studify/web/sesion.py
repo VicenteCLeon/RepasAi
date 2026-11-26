@@ -160,7 +160,9 @@ def _leer(request: Request) -> _CookieEstudiante | None:
     del formato anterior (`<id>.<firma>`) caen acá y se ignoran.
     """
     crudo = request.cookies.get(COOKIE_ESTUDIANTE)
-    if not crudo:
+    # Solo ASCII: `isdigit()` acepta «²», que `int()` rechaza, y
+    # `compare_digest` no admite texto fuera de ASCII.
+    if not crudo or not crudo.isascii():
         return None
 
     partes = crudo.split(".")
@@ -328,7 +330,7 @@ def es_docente(request: Request) -> bool:
         return False
 
     crudo = request.cookies.get(COOKIE_DOCENTE)
-    if not crudo or "." not in crudo:
+    if not crudo or not crudo.isascii() or "." not in crudo:
         return False
 
     valor, _, firma = crudo.partition(".")

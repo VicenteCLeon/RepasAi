@@ -23,9 +23,9 @@
         Si vinculaste tu perfil, <a href="/student/login">entra con Google</a> para recuperar
         tus datos desde este navegador.
         {% else %}
-        Como no te pedimos nombre ni correo, la única forma de saber qué datos son tuyos es la sesión
-        guardada en tu navegador. Si respondiste el cuestionario en otro dispositivo, entra desde ahí.
-        Si borraste la cookie, escríbenos por el canal indicado en la
+        Ahora mismo no se puede entrar con Google, así que tus datos solo se muestran en el navegador
+        donde tienes la sesión abierta. Si entraste con Google o borraste la cookie, escríbenos por el
+        canal indicado en la
         <a href="/privacidad#derechos">Política de Privacidad</a>.
         {% endif %}
     </p>
@@ -49,17 +49,17 @@
         <div class="card-header">
             <div>
                 <h2 id="md-resumen" class="card-title">Lo que guardamos</h2>
-                <p class="card-subtitle">Estudiante n.º {{ estudiante.id_estudiante }}, registrado el {{ estudiante.fecha_registro.strftime('%d-%m-%Y') }}.</p>
+                <p class="card-subtitle">Estudiante n.º {{ estudiante.id_estudiante }}, registrado el {{ (estudiante.fecha_registro | fecha_chile)[:10] }}.</p>
             </div>
         </div>
         <dl class="md-lista">
             <div><dt>Cuenta Google</dt><dd>{{ estudiante.google_email or "Sin vincular" }}</dd></div>
             {% if estudiante.google_nombre %}<div><dt>Nombre de Google</dt><dd>{{ estudiante.google_nombre }}</dd></div>{% endif %}
             <div><dt>Grupo de estudio</dt><dd>{{ "Control" if estudiante.rol == "control" else "Experimental" }}</dd></div>
-            <div><dt>Diagnósticos VARK</dt><dd>{{ datos.diagnosticos_vark | length }}, con tus respuestas a cada pregunta</dd></div>
+            <div><dt>Diagnósticos VARK</dt><dd>{% if estudiante.rol == "control" and not datos.diagnosticos_vark %}No aplica en el grupo control{% else %}{{ datos.diagnosticos_vark | length }}, con tus respuestas a cada pregunta{% endif %}</dd></div>
             <div><dt>Cápsulas generadas</dt><dd>{{ datos.capsulas | length }}</dd></div>
             <div><dt>Intentos en actividades</dt><dd>{{ datos.intentos_en_actividades | length }}</dd></div>
-            <div><dt>Rango de edad</dt><dd>{{ estudiante.rango_etario or "No informado" }}</dd></div>
+            <div><dt>Rango etario</dt><dd>{{ estudiante.rango_etario or "No informado" }}</dd></div>
             <div><dt>Género</dt><dd>{{ estudiante.genero or "No informado" }}</dd></div>
             <div><dt>Carrera</dt><dd>{{ estudiante.carrera or "No informada" }}</dd></div>
             <div>
@@ -67,7 +67,7 @@
                 <dd>
                     {% for a in datos.aceptaciones %}
                     {{ {"terminos": "Términos", "privacidad": "Privacidad", "genero": "Uso del género"}[a.documento] }} v{{ a.version }}
-                    ({{ a.aceptado_en.strftime('%d-%m-%Y %H:%M') }} UTC){% if not loop.last %} · {% endif %}
+                    ({{ a.aceptado_en | fecha_chile }}, hora de Chile){% if not loop.last %} · {% endif %}
                     {% else %}Ninguna registrada{% endfor %}
                 </dd>
             </div>

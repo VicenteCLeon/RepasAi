@@ -79,8 +79,8 @@
         {% if sin_clasificar %}
         <div class="mb-4">
             {% call ui.alert("info") %}
-            Hay <strong>{{ sin_clasificar }}</strong> fragmento(s) ingeridos sin revisar.
-            Ninguno alimenta un tema hasta que los valides:
+            Hay <strong>{{ cuenta(sin_clasificar, 'fragmento') }}</strong>
+            sin revisar. Ninguno alimenta un tema hasta que se valide:
             <a href="/teacher/curation">ir a la bandeja de curación</a>.
             {% endcall %}
         </div>
@@ -104,9 +104,9 @@
                             {% if fila.estado == 'sin_material' %}
                             <span class="badge badge-danger">{{ ui.icon("triangle-alert") }}Falta material</span>
                             {% elif fila.estado == 'escaso' %}
-                            <span class="badge badge-warning">{{ fila.total }} fragmento(s): escaso</span>
+                            <span class="badge badge-warning">{{ cuenta(fila.total, 'fragmento') }}: escaso</span>
                             {% else %}
-                            <span class="badge badge-success">{{ fila.total }} fragmentos</span>
+                            <span class="badge badge-success">{{ cuenta(fila.total, 'fragmento') }}</span>
                             {% endif %}
                             {% if fila.tipos %}
                             <div class="text-xs text-muted mt-1">
@@ -119,8 +119,8 @@
                             <div class="cluster cluster-sm">
                                 {% for canal in fila.canales %}
                                 <span class="canal-cobertura {% if canal.degradado %}is-degradado{% endif %}" data-canal="{{ canal.canal }}"
-                                      title="{{ canal.nombre }}: {% if canal.degradado %}sin recursos del tipo que este perfil aprovecha, recibirá solo texto{% else %}{{ canal.cantidad }} fragmento(s) del tipo preferido{% endif %}">
-                                    {{ canal.canal }}<span class="visually-hidden">: {{ canal.nombre }}, {% if canal.degradado %}sin recursos propios{% else %}{{ canal.cantidad }} fragmento(s){% endif %}</span>
+                                      title="{{ canal.nombre }}: {% if canal.degradado %}sin recursos del tipo que este perfil aprovecha, recibirá solo texto{% else %}{{ cuenta(canal.cantidad, 'fragmento') }} del tipo preferido{% endif %}">
+                                    {{ canal.canal }}<span class="visually-hidden">: {{ canal.nombre }}, {% if canal.degradado %}sin recursos propios{% else %}{{ cuenta(canal.cantidad, 'fragmento') }}{% endif %}</span>
                                 </span>
                                 {% endfor %}
                             </div>
@@ -221,7 +221,7 @@
                     {% for cap in capsulas %}
                     <tr>
                         <td data-label="ID" class="tabular">#{{ cap.id_capsula }}</td>
-                        <td data-label="Fecha" class="tabular nowrap">{{ cap.fecha_generacion.strftime('%d-%m-%Y %H:%M') }}</td>
+                        <td data-label="Fecha" class="tabular nowrap">{{ cap.fecha_generacion | fecha_chile }}</td>
                         <td data-label="Estudiante">Estudiante #{{ cap.id_estudiante }}</td>
                         <td data-label="Grupo de estudio">{{ grupo(cap.estudiante.rol) }}</td>
                         <td data-label="Tema generado">{{ cap.titulo }}</td>

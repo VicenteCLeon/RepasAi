@@ -47,8 +47,10 @@ TERMINOS = Documento(
     # 0.5: los dos grupos entran solo con Google y eligen su grupo; el control
     # recibe un resumen estándar y no responde el cuestionario (punto 2c).
     # 0.6: los grupos se llaman «Experimental» y «Control», como en el login.
-    version="0.6",
-    actualizado=date(2026, 11, 8),
+    # 0.7: material «revisado por el equipo, con autorización de la profesora del
+    # curso» y acceso por internet mediante un túnel de Cloudflare.
+    version="0.7",
+    actualizado=date(2026, 11, 26),
 )
 
 PRIVACIDAD = Documento(
@@ -68,8 +70,11 @@ PRIVACIDAD = Documento(
     # Google y elección de grupo para los dos grupos (punto 2c).
     # 0.8: los grupos se llaman «Experimental» y «Control», como en el login,
     # también en el dato «Grupo de estudio».
-    version="0.8",
-    actualizado=date(2026, 11, 8),
+    # 0.9: se guardan nombre y correo de Google (en todas las secciones), acceso
+    # por internet con un túnel de Cloudflare, sin IP en archivos, clave
+    # `repasai-carga-visor` y quién revisa el material (RV-03, 04, 25 y 28).
+    version="0.9",
+    actualizado=date(2026, 11, 26),
 )
 
 DOCUMENTOS = (TERMINOS, PRIVACIDAD)

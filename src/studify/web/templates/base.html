@@ -1,5 +1,8 @@
 {% import "components/ui.html" as ui %}
 {%- set ruta = request.url.path -%}
+{# Con sesión de docente y sin sesión de estudiante, los destinos del estudiante
+   solo llevaban al cuestionario (RV-13): no se ofrecen. #}
+{%- set solo_docente = es_docente and not con_sesion_estudiante -%}
 <!DOCTYPE html>
 <html lang="es">
 
@@ -58,6 +61,7 @@
                 <span class="brand-word">Repas<span>Ai</span></span>
             </a>
 
+            {% if not solo_docente %}
             <nav class="site-nav" aria-label="Principal">
                 <a href="/student/catalog" {% if ruta.startswith('/student/catalog') or ruta.startswith('/student/viewer') %}aria-current="page"{% endif %}>
                     {{ ui.icon("layers") }}<span>Temas</span>
@@ -66,6 +70,7 @@
                     {{ ui.icon("circle-user") }}<span>Mi perfil</span>
                 </a>
             </nav>
+            {% endif %}
 
             {# Las pestañas del docente solo existen para quien pasó por
                /teacher/login. No es únicamente estético: `auth.requiere_docente`
@@ -102,13 +107,15 @@
                     {{ ui.icon("log-out") }}<span>Salir</span>
                 </a>
                 {% endif %}
-                {% if google_disponible %}
+                {% if google_disponible and not solo_docente %}
                 {% if google_vinculado %}
                 <a href="/student/login" class="btn btn-ghost btn-sm site-actions-icono" aria-label="Mi cuenta" title="Mi cuenta">
                     {{ ui.icon("circle-user") }}<span>Mi cuenta</span>
                 </a>
                 {% else %}
-                <a href="/student/login" class="btn btn-ghost btn-sm">
+                {# En el acceso que sigue a «Descubre tu estilo», el enlace conserva
+                   `?continuar=vark`: sin él, enviar el formulario borra el borrador. #}
+                <a href="/student/login{{ '?continuar=vark' if continuar_vark else '' }}" class="btn btn-ghost btn-sm">
                     {{ ui.icon("circle-user") }}<span>Entrar con Google</span>
                 </a>
                 {% endif %}
@@ -183,6 +190,7 @@
 
     {# Navegación inferior en móvil: los destinos del estudiante quedan al
        alcance del pulgar. En escritorio la reemplaza el header. #}
+    {% if not solo_docente %}
     <nav class="tabbar" aria-label="Navegación rápida">
         <a href="/" {% if ruta == '/' %}aria-current="page"{% endif %}>
             {{ ui.icon("house") }}<span>Inicio</span>
@@ -194,6 +202,7 @@
             {{ ui.icon("circle-user") }}<span>Perfil</span>
         </a>
     </nav>
+    {% endif %}
 
     {% block scripts %}{% endblock %}
 </body>

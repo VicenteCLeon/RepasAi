@@ -37,7 +37,11 @@ from studify.db.models import (
 )
 from studify.db.session import get_db
 from studify.knowledge import curation
-from studify.knowledge.extract import FORMATOS_SOPORTADOS, FormatoNoSoportado
+from studify.knowledge.extract import (
+    FORMATOS_SOPORTADOS,
+    ArchivoIlegible,
+    FormatoNoSoportado,
+)
 from studify.knowledge.ingest import (
     DocumentoDuplicado,
     DocumentoSinTexto,
@@ -81,14 +85,17 @@ router_docente = APIRouter(
 def crear_objetivo(payload: ObjetivoIn, db: Session = Depends(get_db)) -> ObjetivoAprendizaje:
     """El catálogo se carga a mano: es información curricular, no se infiere."""
     duplicado = db.scalar(
-        select(ObjetivoAprendizaje).where(
-            ObjetivoAprendizaje.codigo_objetivo == payload.codigo_objetivo
+        select(ObjetivoAprendizaje)
+        .where(
+            func.lower(ObjetivoAprendizaje.codigo_objetivo)
+            == payload.codigo_objetivo.lower()
         )
+        .limit(1)
     )
     if duplicado is not None:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"ya existe un objetivo con código '{payload.codigo_objetivo}'",
+            detail=f"ya existe un objetivo con código '{duplicado.codigo_objetivo}'",
         )
 
     objetivo = ObjetivoAprendizaje(**payload.model_dump(), estado="activo")
@@ -222,7 +229,7 @@ def subir_documento(
             )
         except DocumentoDuplicado as exc:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
-        except DocumentoSinTexto as exc:
+        except (DocumentoSinTexto, ArchivoIlegible) as exc:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
             ) from exc

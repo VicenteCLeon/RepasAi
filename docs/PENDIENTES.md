@@ -10,7 +10,7 @@
 > `AVANCE.md` con su commit. Las listas de origen quedan como registro de su
 > fecha y no se vuelven a actualizar.
 >
-> Última revisión: 15-nov-2026. Las ubicaciones de código van por función; los
+> Última revisión: 26-nov-2026. Las ubicaciones de código van por función; los
 > números de línea son aproximados.
 
 ---
@@ -42,64 +42,60 @@
   o avisar; meterlo en el mismo commit solo si sin eso el punto no queda
   correcto, y decirlo.
 
-**Estado de la suite al 15-nov-2026**, en `main` (`8576d1c`), con `LLM_API_KEY` vacía e ignorando
-`test_visual.py` y `test_voz.py`: 822 tests recolectados. El estado del 08-nov (810/2/0 y 482/326/4)
-y el del cierre de la Etapa 2 (`c28df6a`: 769/2/0 y 452/315/4) están en AVANCE §5.35 y §5.36.
+**Estado de la suite al 26-nov-2026** (AVANCE §5.39), con `LLM_API_KEY` vacía e ignorando
+`test_visual.py` y `test_voz.py`: 917 tests recolectados. Los estados anteriores están en AVANCE §5.35 a §5.38.
 
 | Forma | Pasan | Omitidos | Fallan |
 |---|---|---|---|
-| Puerto cerrado | 492 | 326 | 4: los de `test_web_auth.py` sin `@necesita_bd` |
-| Con Postgres (`studify_test`) | 820 | 2 | 0 |
-| `node tests/*.cjs` | 7 + 5 comprobaciones | — | 0 (no se volvió a correr desde el 08-nov) |
+| Puerto cerrado | 560 | 353 | 4: los de `test_web_auth.py` sin `@necesita_bd` |
+| Con Postgres (`studify_test`) | 917 | 0 | 0 |
+| `node tests/*.cjs` | los tres archivos | — | 0 |
+
+Las dos formas se midieron con el extra `ingest` completo. En la máquina de desarrollo falta `python-pptx`
+(O7): ahí «con Postgres» da 911 pasan y 6 omitidos.
 
 Antes de lanzar la forma «con Postgres», comprobar que el contenedor
 `studify-db` esté *healthy*: sin base la corrida no falla, se cuelga (H11).
 
 ---
 
-## Antes del piloto con estudiantes
+## Antes de la próxima demostración
 
-Lo que conviene cerrar antes de que la app la usen personas reales. El detalle
-de cada uno está más abajo. Los seis primeros quedaron abiertos al cerrar las
-Etapas 1 y 2 del estudio A/B (08-nov, AVANCE §5.35); el 7 (R10)
-se sumó ese mismo día.
+Seguir [`CHECKLIST_DEMO.md`](CHECKLIST_DEMO.md) (túnel de Cloudflare, `GOOGLE_REDIRECT_URI` en `.env` y en
+Google Cloud, usuarios de prueba y comprobación rápida). Instalar `python-pptx` en el equipo que se muestre (O7).
 
-1. **Recorrido manual con Google real, con una cuenta de cada grupo** (O6):
-   elegir grupo, entrar, salir y volver, cápsula, actividad y «Mis datos».
-   Incluye las **4 comprobaciones de la animación de carga** del punto 2b.
-2. **Rotar el `client_secret` de Google** cuando termine esa prueba (O6).
-3. **Aplicar las pruebas al grupo Control** (E1). El instrumento ya está
-   definido (pre/post de 10 preguntas sobre Diseño UX y cuestionario de
-   percepción sobre la última cápsula, AVANCE §5.37).
-4. **R15:** arreglar `scripts/eval_runner.py`, que puede mandar la clave de
-   DeepSeek a otros proveedores. No usarlo antes.
-5. **D7:** decidir si se restringe el acceso a cuentas `@mail.pucv.cl`.
-6. **Punto 1d** (G8): métricas de adherencia sin rechazo en el validador. La
-   auditoría de solo lectura de las cápsulas guardadas ya existe
-   (`scripts/adherencia/medir_adherencia.py`, `docs/LIMITACIONES_ADHERENCIA.md`).
-7. ✅ **R10: que la suite no use la base de desarrollo** (resuelto el 08-nov,
-   `eb1d75a`). La suite corre contra `studify_test` y `tests/conftest.py` se
-   niega a arrancar contra una base cuyo nombre no termine en `_test`. En la
-   máquina del piloto falta crear y migrar su `studify_test` (README); queda
-   lo menor anotado en R10.
-8. **Sesión en computadores compartidos:** fijar `SESION_ESTUDIANTE_HORAS` según
-   dónde se use (1–4 en un laboratorio) y dejar cada máquina en la última
-   migración (`a7c3d9e51f64`, O2). R2 ya está corregido (`75c14fa`, AVANCE §5.32).
-9. **Credenciales en la máquina 2** (O1): la parte de código está hecha el
-   27-oct (sin `admin123` de fábrica; fuera de `APP_ENV=dev` no arranca sin un
-   `SESSION_SECRET` fuerte). Falta fijar los valores a mano.
-10. **Repetir la batería VARK con `deepseek-flash`**, incluido el perfil V (G1).
-11. **Desplegar los cambios antes del piloto, no durante:** el cambio de huella
-    del 17-oct (`ce30e6d`) y el del punto 1c (`666f587`, perfiles con
-    `actividad_aplicada`) regeneran las cápsulas afectadas una vez, y el control
-    estrena la variante `control-neutro-v1`. El 08-nov cambió además la huella
-    del control (esquema básico con «entre 3 y 5 alternativas»), así que sus
-    cápsulas guardadas también se regeneran una vez. Conviene que esas generaciones
-    ocurran antes del piloto y no a mitad de él. Cada máquina tiene que quedar
-    al día (O2).
-12. **Fase 5:** instrumentos definidos (AVANCE §5.37); falta aplicarlos al
-    grupo Control y analizar los resultados (E1, E5).
-13. **Riesgos legales** L1 y L5.
+---
+
+## La lista «Antes del piloto», revisada tras el piloto
+
+El piloto se realizó: **20 cuentas de Google, 12 del grupo experimental y 8 de control**, con intentos
+registrados entre el **8 y el 19-nov** (fechas UTC). En el experimental, 11 abrieron cápsulas y 9 respondieron
+actividades; en control, las 8 hicieron ambas cosas. Cada participante entró desde su dispositivo por un
+túnel de Cloudflare. Estado de los 13 puntos; ✅ solo donde hay respaldo:
+
+1. **Recorrido con Google real, una cuenta de cada grupo (O6):** ✅ lo cubrió el uso del piloto. Sin registro
+   de las 4 comprobaciones de la animación de carga del punto 2b como tales.
+2. **Rotar el `client_secret` de Google (O6):** ✅ hecho (confirmado por el equipo el 26-nov).
+3. **Aplicar las pruebas al grupo Control (E1):** ✅ las sesiones con usuarios terminaron y los dos grupos
+   tienen intentos en la app.
+4. **R15** (`eval_runner.py`): abierto.
+5. **D7** (restringir a `@mail.pucv.cl`): sin cambio en el código. Las 20 cuentas del piloto fueron de ese
+   dominio.
+6. **Punto 1d** (G8): abierto.
+7. **R10** (la suite no usa la base de desarrollo): ✅ resuelto el 08-nov (`eb1d75a`).
+8. **Computadores compartidos:** no aplicó, cada participante usó su dispositivo. La base de la máquina del
+   piloto está en la última migración (`a7c3d9e51f64`).
+9. **Credenciales en la máquina 2 (O1):** no aplica, la app solo corre en un equipo.
+10. **Repetir la batería VARK con `deepseek-flash` (G1):** descartado, las pruebas con usuarios ya se
+    analizaron.
+11. **No cambiar huellas durante el piloto:** ✅ las 49 cápsulas del piloto coinciden con las huellas que
+    calcula el código actual (ver «Material» abajo).
+12. **Fase 5:** ✅ instrumentos definidos (§5.37), sesiones realizadas y análisis hecho (fuera del repositorio).
+13. **Riesgos legales:** L1 abierto; L5 abierto (comprobado el 26-nov).
+
+**Material:** el fragmento 14751 (UX-06-01, página 3: título y un enlace de video), validado después del
+piloto, se descartó el 26-nov. Las 10 cápsulas guardadas de UX-06-01 volvieron a coincidir con el caché
+(§5.39).
 
 ---
 
@@ -212,7 +208,8 @@ R14 se cerró por decisión del informe (AVANCE §5.37).
   `estado_curacion='rechazado'`, pero no existe endpoint ni pantalla para
   hacerlo (`EstadoCuracion` en `schemas_knowledge.py` no se usa). Tampoco se
   puede editar ni desactivar un objetivo, y `crear_capsula` no comprueba
-  `objetivo.estado`.
+  `objetivo.estado`. Desde el 26-nov al menos no se pueden crear objetivos en
+  blanco ni códigos que solo difieran en mayúsculas (§5.39).
 - **R8. `teacher.py::_fila`** busca el fragmento entre los primeros 600
   (`listar_fragmentos(limite=LIMITE_BANDEJA * 10)`). Con más material, aprobar
   o descartar hace desaparecer la fila y oculta el error. Arreglo:
@@ -225,7 +222,7 @@ R14 se cerró por decisión del informe (AVANCE §5.37).
 - **R12. Rutas relativas al directorio de trabajo**: `config.py` lee `.env`
   con `env_file=".env"`; `documentos_dir`, `media_dir` y `tts_modelos_dir` son
   `data/...`; XTTS busca `tests/referencia.wav`. Arrancada desde otra carpeta,
-  la app queda sin `.env`: desde O1 no arranca (sin `SESSION_SECRET` y sin
+  la app queda sin `.env`: desde el 27-oct no arranca (sin `SESSION_SECRET` y sin
   `APP_ENV=dev`), y con las variables en el entorno arrancaría sin LLM. Los
   audios ya se resolvieron (`narracion.DIRECTORIO_AUDIO`).
 - **R13. Promedio VARK de la cohorte** (`teacher.py::get_analytics`): promedia
@@ -261,7 +258,7 @@ R14 se cerró por decisión del informe (AVANCE §5.37).
   `teacher_password` y `llm_api_key` en claro (visto el 24-oct). Pasarlos a
   `SecretStr` de Pydantic.
 - **Registro:** con `APP_ENV=dev`, `db/session.py` usa `echo=True` y la consola
-  muestra SQL con parámetros (género, contenido). `/health` expone el texto
+  se llena de SQL (los parámetros van ocultos). `/health` expone el texto
   del error de la base.
 - **Ingesta:** PPTX ignora formas agrupadas, SmartArt y notas; PDF no filtra
   encabezados ni pies repetidos.
@@ -283,6 +280,22 @@ R14 se cerró por decisión del informe (AVANCE §5.37).
   unificar el esquema del control; no se tocó.
 - **Coste sin tope:** un estudiante puede llamar `POST /api/capsulas?regenerar=true`
   sobre sí mismo sin límite.
+- **Doble generación al recargar** (RV-21 de la revisión del 26-nov): recargar
+  el visor mientras se genera puede producir dos llamadas al modelo y dos filas.
+  En los datos del piloto no hay duplicados. Arreglo posible: un candado por
+  estudiante y objetivo.
+- **Regla multimodal** (RV-23): en un perfil multimodal con K = 0,
+  `rules._directivas` agrega `ejemplo_resuelto` aunque
+  `componentes_practicos` sea 0, y el perfil muestra las dos cosas. Cambiarlo
+  altera huellas y la lectura de la tabla 11.1; distinto de G3.
+- **Descripciones sin comas** (RV-30): UX-06-02, UX-06-03 y UX-07-03 enumeran
+  sin comas en el catálogo. Corregir los datos cambia la huella de esos temas y
+  regenera sus cápsulas.
+- **Borrador del cuestionario:** la cabecera ya conserva `?continuar=vark`
+  (§5.39), pero si se sale de la página de acceso por otro enlace (p. ej.
+  «Política de Privacidad») y se vuelve sin el parámetro, el borrador se borra.
+- **Radar del perfil:** cuando un canal llega al borde de la escala, el punto
+  tapa parte de su etiqueta.
 
 ### Calidad y reproducibilidad
 
@@ -293,20 +306,16 @@ R14 se cerró por decisión del informe (AVANCE §5.37).
 - Código muerto o desfasado: `media/generator.py` (`GeneradorMultimedia`),
   docstring de `media/image.py` (dice Z-Image/FLUX, carga SDXL),
   `scripts/check_taesd3.py` (UTF-16, no se ejecuta), `scripts/scratch.py`.
-- `ruff check .` tiene unos 40 avisos previos, sobre todo E501 en `scripts/`.
+- `ruff check .` tiene 201 avisos previos, sobre todo E501 en `scripts/`; 162
+  vienen de `scripts/adherencia` y `scripts/exportar_prueba`.
 
 ---
 
 ## G. Generación y adaptación VARK
 
-- **G1. Repetir la batería VARK con el modelo de producción.** `deepseek-flash`
-  se validó con 4 cápsulas, todas de perfil V; la batería de 30 perfiles A/R/K
-  se corrió con `deepseek-chat` (29/30 válidas tras reparar = 96,7 %; 26/30 a la primera = 86,7 %).
-  Repetirla con `scripts/probar_perfiles_vark.py`, incluido el perfil V, que
-  quedó fuera. K es la salida más larga y va con `max_tokens=2000`. Absorbe el
-  pendiente n.º 15 de AVANCE (R fallaba más), que la batería ya mostró
-  superado en validez y que hoy vive como H1/H3.
-  Origen: `PRUEBAS_VARK.md` «Resumen de fallos»; `analisis-modulo-visual.md` §10.8.
+G1 (repetir la batería VARK con `deepseek-flash`) se descartó el 26-nov: las
+pruebas con usuarios ya se analizaron (AVANCE §5.39).
+
 - **G2. H3 — K se pasa de largo y R se queda corto** (+48 / −57 palabras
   respecto del objetivo). Abierto. Origen: `PRUEBAS_VARK.md`, H3.
 - **G3. H4 — con 25 ≤ p_K < 40 % el prompt pide «2 componentes prácticos» sin
@@ -385,17 +394,16 @@ El horizonte del plan terminaba el 09-oct-2026. Origen: `PLAN_DESARROLLO.md` §4
     - unidades 06 y 07 de INF3246, 2 + 2 objetivos por participante;
     - pre/post de 10 preguntas sobre Diseño UX;
     - cuestionario de percepción sobre la última cápsula.
-  - **Falta aplicar las pruebas al grupo Control** y cruzar las respuestas del
-    pre/post y del cuestionario (fuera de la app) con los intentos por código de
-    participante (`scripts/exportar_prueba/exportar_prueba.py --forms`).
+  - ✅ **Sesiones con usuarios realizadas** (intentos del 8 al 19-nov, los dos
+    grupos) y analizadas.
   - **Material comparable entre grupos:** UX-06-02 (11), UX-06-03 (12),
     UX-06-04 (11) y UX-07-02 (12) superan el tope de 8 fragmentos validados, así
     que en esos objetivos los dos grupos pueden recibir material distinto (ver
     «Retriever» en «Prioridad baja»).
-- **E5. Análisis y capítulo de resultados.** El análisis está definido (AVANCE
-  §5.37): descriptivo por participante, con U de Mann-Whitney y r de rango
-  biserial como complemento. Falta ejecutarlo con los datos del Control y
-  completar los `\pendiente` del informe (Tabla 5.6 y la conclusión del cap. 6).
+- **E5. Capítulo de resultados.** El análisis definido en AVANCE §5.37 está hecho
+  (26-nov, fuera de este repositorio). No hay registro aquí de que los
+  `\pendiente` del informe (Tabla 5.6 y la conclusión del cap. 6) estén
+  completados.
 
 E2 (batería técnica con Precision/Recall), E3 (validación docente) y E4 (TAM y
 rúbrica docente) se cerraron el 15-nov por decisión del informe (AVANCE §5.37).
@@ -428,6 +436,9 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
   `docs/images/` (qué variante de SD3 se usó), `tests/referencia.wav` y
   `tests/prueba_entorno.wav`. La tabla con lo que hay que confirmar de cada uno
   y una redacción propuesta para los Términos están en `PRUEBAS_VARK.md`.
+- **L9. Cloudflare:** la Política (0.9) informa que trata los datos del tráfico
+  según sus propios términos y política de privacidad. No hay un contrato de
+  encargo verificado; revisarlo junto con L1.
 - **L8. Licencias que restringen:** XTTS-v2 (CPML, solo uso no comercial; es
   opción administrativa) y la voz `sharvard`, que parte de una voz entrenada
   con datos solo para investigación. `pymupdf` es AGPL-3.0, compatible con la
@@ -436,29 +447,10 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
 
 ## O. Operación y entorno
 
-- **O1. Credenciales.** Origen: AVANCE §6 n.º 7 y §9.
-  - ✅ **Código (27-oct-2026):** `TEACHER_PASSWORD` ya no tiene valor por
-    defecto (sin ella el panel queda cerrado). `APP_ENV` vale `prod` si no se
-    fija, y fuera de `dev` `config.verificar_configuracion` no deja arrancar sin
-    un `SESSION_SECRET` de 32+ caracteres que no sea de ejemplo, ni con una
-    clave de docente débil (menos de 12 caracteres o conocida, como `admin123`).
-    En `dev` solo avisa. Tests en `tests/test_config_seguridad.py`.
-  - **Falta, a mano en la máquina 2:** fijar en su `.env` un `SESSION_SECRET`
-    propio (`python -c "import secrets; print(secrets.token_urlsafe(48))"`) y
-    una `TEACHER_PASSWORD` nueva de 12+ caracteres, y reiniciar la app.
-    Decidir su `APP_ENV`: fuera de `dev` la cookie lleva `Secure`, así que con
-    `prod` la app hay que servirla por HTTPS o desde `localhost`; por HTTP a la
-    IP de la red el navegador descarta la cookie y nadie puede iniciar sesión.
-  - En la máquina 1 conviene revisar que su `TEACHER_PASSWORD` no siga siendo
-    `admin123` (en `dev` arranca igual, con un aviso).
-- **O2. Dejar cada máquina al día.** Correr `alembic upgrade head` (migración
-  `d7e2b9c41a58`, 17-oct-2026; ya aplicada en la de la revisión, `D:\PUCV\…`)
-  y fijar `LLM_MODEL=deepseek-flash` en el `.env` (desde el 11-oct). Los datos
-  VARK de la máquina 2 siguen sin auditar: puede tener el mismo ruido de tests
-  que tuvo la máquina 1. Origen: AVANCE §9 y §5.30.
-  - **Máquina 2, 01-nov:** esquema actualizado a `f6b2c8d40e53` (grupo control),
-    previo respaldo. Conserva los 49 estudiantes anteriores; sus datos VARK
-    siguen sin auditar. Falta comprobar modelo y credenciales locales (O1).
+O1 (credenciales) y O2 (dejar cada máquina al día) se cerraron el 26-nov: la app
+solo corre en un equipo, que tiene la base en la última migración,
+`LLM_MODEL=deepseek-flash` y una clave docente que no es de fábrica (AVANCE §5.39).
+
 - **O3. `scripts/reset_db.py` no pide confirmación** antes de `drop_all`.
   Origen: AVANCE §6 n.º 12.
 - **O4. Los `codigo_objetivo` siguen el patrón `PREFIJO-Ux-NN`, pero la API no
@@ -466,23 +458,17 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
   materia. Origen: AVANCE §5.27.
 - **O5. Kokoro tiene episodios de ~0,6 × la duración del audio** que no se
   explicaron (la mediana es ~0,19). Origen: AVANCE §5.28.
-- **O6. Activar y probar Google Identity.** El código de D6 está implementado
+- **O6. Google Identity.** El código de D6 está implementado
   (01-nov, AVANCE §5.34) y la migración `a7c3d9e51f64` está aplicada en
   la máquina 2 y, desde el 02-nov, en la máquina 1.
   - ✅ **02-nov-2026, máquina 1:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` y
-    `GOOGLE_REDIRECT_URI` (`http://127.0.0.1:8000/student/google/callback`)
-    quedaron en su `.env`; la app arranca y `/student/login` responde. El venv
+    `GOOGLE_REDIRECT_URI` quedaron en su `.env`; la app arranca y `/student/login` responde. El venv
     no tenía `google-auth`: hizo falta `pip install -e .` (README, paso de
     Google). Las 47 pruebas de `tests/test_google_login.py` pasan.
-  - **Falta:** probar con una cuenta real **de cada grupo** (Control y
-    Experimental), a mano en el navegador: elegir el grupo en
-    `/student/login` (2a), entrar con cuenta nueva, salir y volver, vincular
-    un perfil local, el borrador VARK antes de iniciar sesión (y que se
-    descarte al elegir Control), cápsula, actividad, «Mis datos» y la descarga
-    del CSV desde el panel (2d). Las pruebas automáticas simulan el intercambio y la
-    verificación del token; el camino contra Google no está cubierto. Confirmar
-    en Google Cloud que la URI exacta está registrada y que las cuentas de
-    prueba están como usuarios de prueba.
+  - ✅ **Uso real (piloto, 8 a 19-nov):** 20 cuentas de Google entraron en los dos
+    grupos por el túnel.
+  - **Sin registro:** el recorrido punto por punto (salir y volver, vincular un
+    perfil local, borrador VARK antes de entrar, «Mis datos» y CSV).
   - **Animación de carga del visor (punto 2b), en el mismo recorrido manual:**
     no se verificó en un navegador real (05-nov; la extensión de Chrome no
     estaba conectada). Las pruebas cubren el cálculo
@@ -496,17 +482,19 @@ Origen: `AVANCE.md` §5.21 «Riesgos legales que siguen abiertos» y
     3. **Recarga, botón «atrás» y enlace directo al visor:** la cápsula se ve
        de inmediato, sin capa.
     4. **bfcache (atrás y adelante):** la capa no queda abierta.
-  - **Rotar el `client_secret`:** se pegó en una conversación con el asistente
-    el 02-nov. Crear uno nuevo en Google Cloud cuando termine la prueba y
-    actualizar el `.env`.
+  - ✅ **`client_secret` rotado** (confirmado el 26-nov).
   - **Prueba por túnel (Cloudflare):** con la URI en `127.0.0.1` el retorno de
     Google no vuelve al host del túnel y falla con «El acceso no corresponde a
     este navegador». Para probar desde otro dispositivo hay que poner la URL
     del túnel en `GOOGLE_REDIRECT_URI` y registrarla en Google Cloud; un túnel
     rápido cambia de URL en cada arranque (conviene uno con nombre fijo). Fuera
     de `APP_ENV=dev` la cookie lleva `Secure` y exige un `SESSION_SECRET` fuerte
-    (O1).
+    (`config.verificar_configuracion`).
   - **Abierto, decisión del equipo (D7):** ver más abajo.
+
+- **O7. Extra `ingest` incompleto en la máquina de desarrollo:** falta
+  `python-pptx`, así que ahí el panel no puede leer `.pptx` (avisa qué instalar).
+  `pip install -e ".[ingest]"`.
 
 ## D. Decisiones con la profesora guía
 
@@ -555,4 +543,4 @@ está en [`CORRECCIONES_INFORME.md`](CORRECCIONES_INFORME.md).
 
 ---
 
-**Orden sugerido:** «Antes del piloto» (arriba) → E1 y E5 → H11 → R7, R8, R9 → el resto.
+**Orden sugerido:** la demostración (arriba) → H11 → R7, R8, R9 → el resto.

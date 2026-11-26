@@ -18,12 +18,18 @@ EstadoCuracion = Literal["pendiente", "validado", "rechazado"]
 
 
 class ObjetivoIn(BaseModel):
-    """Alta de un objetivo del catálogo curricular (tabla 17.5)."""
+    """Alta de un objetivo del catálogo curricular (tabla 17.5).
 
-    codigo_objetivo: str = Field(max_length=30)
-    asignatura: str = Field(max_length=100)
-    unidad: str = Field(max_length=100)
-    tema: str = Field(max_length=150)
+    Se quitan los espacios de los extremos antes de validar: un campo con solo
+    espacios está vacío (RV-11).
+    """
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    codigo_objetivo: str = Field(min_length=1, max_length=30)
+    asignatura: str = Field(min_length=1, max_length=100)
+    unidad: str = Field(min_length=1, max_length=100)
+    tema: str = Field(min_length=1, max_length=150)
     descripcion: str | None = None
     nivel_taxonomico: str | None = Field(default=None, max_length=50)
 

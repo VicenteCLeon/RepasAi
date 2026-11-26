@@ -49,6 +49,10 @@ templates = Jinja2Templates(
 # de la barra del perfil.
 templates.env.globals["NOMBRE_CANAL"] = textos.NOMBRE_CANAL
 templates.env.globals["OPCIONES_VOZ"] = textos.OPCIONES_VOZ
+templates.env.globals["NOMBRE_BLOQUE"] = textos.NOMBRE_BLOQUE
+templates.env.globals["NOMBRE_ACTIVIDAD"] = textos.NOMBRE_ACTIVIDAD
+templates.env.globals["cuenta"] = textos.cuenta
+templates.env.filters["fecha_chile"] = textos.fecha_corta_chile
 templates.env.globals["NOMBRE_MUESTRA"] = textos.NOMBRE_MUESTRA
 # Función y no un dict: se consulta el disco al dibujar el selector, así que las
 # muestras aparecen en cuanto se generan, sin reiniciar.

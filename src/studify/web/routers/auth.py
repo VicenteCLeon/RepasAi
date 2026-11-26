@@ -34,7 +34,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from sqlalchemy.orm import Session
 
 from studify.db.session import get_db
-from studify.web import sesion
+from studify.web import sesion, textos
 from studify.web.deps import templates
 
 logger = logging.getLogger(__name__)
@@ -47,10 +47,10 @@ DESTINO_POR_DEFECTO = "/teacher/curation"
 # Freno de fuerza bruta. Una clave compartida se elige corta y no se rota
 # seguido, así que sin freno un script la encuentra en minutos. Es deliberadamente
 # modesto —cuenta en memoria del proceso, se reinicia con el servidor y agrupa
-# por IP, de modo que no sirve contra un atacante distribuido—, pero convierte un
-# ataque de minutos en uno de días, que para un prototipo de piloto es la
-# diferencia que importa. Un `Retry-After` real pediría almacenamiento
-# compartido, y esto corre en un solo proceso.
+# por IP (que nunca se escribe en el registro), de modo que no sirve contra un
+# atacante distribuido—, pero convierte un ataque de minutos en uno de días, que
+# para un prototipo de piloto es la diferencia que importa. Un `Retry-After` real
+# pediría almacenamiento compartido, y esto corre en un solo proceso.
 INTENTOS_MAXIMOS = 5
 VENTANA_BLOQUEO_SEGUNDOS = 60
 
@@ -169,10 +169,13 @@ def requiere_docente_api(
     origen = _origen(request)
     espera = _segundos_de_bloqueo(origen)
     if espera:
-        logger.warning("acceso a /api bloqueado por intentos fallidos: %s", origen)
+        logger.warning("acceso a /api bloqueado por intentos fallidos")
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"Demasiados intentos fallidos. Reintenta en {espera} segundo(s).",
+            detail=(
+                "Demasiados intentos fallidos. Reintenta en "
+                f"{textos.cuenta(espera, 'segundo')}."
+            ),
             headers={"Retry-After": str(espera)},
         )
 
@@ -187,7 +190,7 @@ def requiere_docente_api(
     # y contarla dejaría el panel bloqueado por un rastreador cualquiera.
     if credenciales:
         _fallos_por_origen.setdefault(origen, []).append(time.time())
-        logger.warning("credenciales de docente incorrectas en /api desde %s", origen)
+        logger.warning("credenciales de docente incorrectas en /api")
 
     raise HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -288,20 +291,20 @@ def post_login(
     origen = _origen(request)
     espera = _segundos_de_bloqueo(origen)
     if espera:
-        logger.warning("login de docente bloqueado por intentos fallidos: %s", origen)
+        logger.warning("login de docente bloqueado por intentos fallidos")
         return _pantalla_login(
             request,
             destino,
             error=(
-                f"Demasiados intentos fallidos. Espera {espera} segundo(s) "
-                f"antes de volver a probar."
+                f"Demasiados intentos fallidos. Espera "
+                f"{textos.cuenta(espera, 'segundo')} antes de volver a probar."
             ),
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
         )
 
     if not sesion.verificar_credenciales_docente(usuario, clave):
         _fallos_por_origen.setdefault(origen, []).append(time.time())
-        logger.warning("credenciales de docente incorrectas desde %s", origen)
+        logger.warning("credenciales de docente incorrectas")
         return _pantalla_login(
             request,
             destino,
@@ -317,14 +320,12 @@ def post_login(
 
 @router.post("/logout")
 def post_logout():
-    """Cierra la sesión y devuelve al estudiante al catálogo.
+    """Cierra la sesión y vuelve a la portada.
 
     Queda fuera del guardián para que sea idempotente: cerrar sesión dos veces
     —o con la cookie ya vencida— tiene que borrar la cookie igual, no rebotar a
     un login que el docente justamente está tratando de dejar atrás.
     """
-    respuesta = RedirectResponse(
-        url="/student/catalog", status_code=status.HTTP_303_SEE_OTHER
-    )
+    respuesta = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     sesion.cerrar_docente(respuesta)
     return respuesta

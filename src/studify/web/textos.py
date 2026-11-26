@@ -90,6 +90,30 @@ EXPLICACION_MULTIMODAL = (
     "apoyarse en uno solo."
 )
 
+def lista_en_palabras(nombres: list[str]) -> str:
+    """«A», «A y B», «A, B y C»."""
+    if len(nombres) < 2:
+        return "".join(nombres)
+    return f"{', '.join(nombres[:-1])} y {nombres[-1]}"
+
+
+def titulo_de_empate(canales: list[str]) -> str:
+    """El encabezado del perfil cuando varios canales tienen el máximo (RV-14)."""
+    if len(canales) == len(NOMBRE_CANAL):
+        return "Tus cuatro canales están empatados"
+    nombres = lista_en_palabras([NOMBRE_CANAL[c] for c in canales])
+    return f"Tienes un empate entre {nombres}"
+
+
+def explicacion_de_empate(canales: list[str], primero: str) -> str:
+    """No hay canal principal. El motor igual ordena el material por uno: se dice cuál."""
+    nombres = lista_en_palabras([NOMBRE_CANAL[c] for c in canales])
+    return (
+        f"Obtuviste el mismo puntaje en {nombres}: ninguno predomina sobre los otros "
+        f"empatados. Para ordenar el material, el sistema parte por {NOMBRE_CANAL[primero]}."
+    )
+
+
 # `tono_narrativo` de la tabla 17.4 → cómo describirlo en pantalla.
 NOMBRE_TONO = {
     "oral": "conversacional",
@@ -117,6 +141,35 @@ GLOSA_DIRECTIVA = {
     "paso_a_paso": "Secuencia paso a paso",
     "actividad_aplicada": "Actividad de aplicación al cierre",
 }
+
+
+# Cómo se rotulan en pantalla los bloques y las actividades de una cápsula.
+NOMBRE_BLOQUE = {
+    "parrafo": "Párrafo",
+    "lista_pasos": "Paso a paso",
+    "tabla": "Tabla comparativa",
+    "esquema": "Esquema",
+    "analogia": "Analogía",
+    "ejemplo_resuelto": "Ejemplo resuelto",
+    "glosario": "Glosario",
+}
+NOMBRE_ACTIVIDAD = {
+    "quiz_mc": "Selección única",
+    "intentalo_tu": "Inténtalo tú",
+    "flashcards": "Tarjetas de repaso",
+    "quiz_multi": "Cuestionario",
+    "flashcards_y_quiz": "Tarjetas + cuestionario",
+}
+
+
+def cuenta(cantidad: int, singular: str, plural: str | None = None) -> str:
+    """«1 fragmento», «3 fragmentos». El plural por defecto agrega una «s»."""
+    return f"{cantidad} {singular if cantidad == 1 else plural or singular + 's'}"
+
+
+# Opciones de los datos opcionales: las mismas que ofrecen los formularios.
+RANGOS_ETARIOS = ("18 - 20 años", "21 - 23 años", "24 - 26 años", "27 años o más")
+GENEROS = ("Femenino", "Masculino", "No Binario / otra identidad")
 
 
 def glosa_directiva(directiva: str) -> str:
@@ -148,6 +201,11 @@ NOMBRE_MUESTRA = {
 # (`TIMESTAMP WITH TIME ZONE`); `zoneinfo` aplica el horario de verano. En
 # Windows la zona sale del paquete `tzdata`, que ya instala `psycopg`.
 ZONA_CHILE = ZoneInfo("America/Santiago")
+
+
+def fecha_corta_chile(momento: datetime) -> str:
+    """`20-10-2026 15:30`, en hora de Chile, para tablas y listas (RV-18)."""
+    return f"{momento.astimezone(ZONA_CHILE):%d-%m-%Y %H:%M}"
 
 
 def fecha_hora_chile(momento: datetime) -> str:
