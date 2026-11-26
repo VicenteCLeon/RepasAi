@@ -575,6 +575,64 @@
   }
 
   // ------------------------------------------------------------------------
+  // Selector de voz: escuchar la muestra de cada opción
+  // Solo reproduce el <audio preload="none"> que sigue al botón: no marca el
+  // radio, no envía el formulario y no pide nada hasta el primer clic.
+  // ------------------------------------------------------------------------
+  let detenerMuestra = null; // detiene la muestra que suena, si hay una
+
+  function initMuestraVoz(btn) {
+    const audio = btn.nextElementSibling;
+    if (!audio || typeof audio.play !== "function") return;
+    const nombre = btn.dataset.muestraVoz;
+
+    function mostrar(sonando) {
+      // Ya marcada como no disponible: un «pause» posterior al error no la revive.
+      if (btn.disabled) return;
+      btn.classList.toggle("is-playing", sonando);
+      btn.setAttribute("aria-label", `${sonando ? "Detener" : "Escuchar"} ${nombre}`);
+      btn.title = sonando ? "Detener muestra" : "Escuchar muestra";
+    }
+
+    function detener() {
+      audio.pause();
+      audio.currentTime = 0;
+      mostrar(false);
+    }
+
+    // El archivo no cargó (borrado, sin red, formato no admitido): el botón se
+    // desactiva y el resto del selector sigue igual.
+    function sinMuestra() {
+      mostrar(false);
+      btn.disabled = true;
+      btn.setAttribute("aria-label", `Muestra no disponible: ${nombre}`);
+      btn.title = "Muestra no disponible";
+    }
+
+    btn.addEventListener("click", () => {
+      if (btn.classList.contains("is-playing")) {
+        detener();
+        return;
+      }
+      if (detenerMuestra && detenerMuestra !== detener) detenerMuestra();
+      detenerMuestra = detener;
+      mostrar(true);
+      audio.play().catch((err) => {
+        // AbortError: se detuvo antes de que alcanzara a sonar; no es un fallo.
+        if (err.name === "NotSupportedError") sinMuestra();
+        else if (err.name !== "AbortError") mostrar(false);
+      });
+    });
+
+    audio.addEventListener("ended", detener);
+    // Pausa ajena al botón (teclas multimedia, otra app). El evento llega con
+    // retraso: si ya se volvió a reproducir, no hay nada que actualizar.
+    audio.addEventListener("pause", () => audio.paused && mostrar(false));
+    audio.addEventListener("error", sinMuestra);
+    btn.hidden = false;
+  }
+
+  // ------------------------------------------------------------------------
   // Registro de módulos
   // ------------------------------------------------------------------------
   const modules = [
@@ -589,6 +647,7 @@
     ["[data-flashcards]", initFlashcards],
     ["[data-multiquiz]", initMultiQuiz],
     ["[data-extracto]", initExtracto],
+    ["[data-muestra-voz]", initMuestraVoz],
   ];
 
   function init(root) {

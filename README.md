@@ -108,6 +108,7 @@ python -m venv .venv
 #    audio:  narración del visor (Kokoro y Piper)
 pip install -e ".[dev,ingest,audio]"
 python scripts/descargar_voces.py   # modelos de voz (~410 MB) a data/voces
+python scripts/generar_muestras_voz.py  # muestras del selector de voz (con ffmpeg, en MP3)
 
 # 3. Configuración
 Copy-Item .env.example .env

@@ -24,6 +24,11 @@ data/pruebas_vark/
 # Narraciones que genera el visor (hallazgo H10). Solo afecta a los WAV nuevos:
 # capsula_620.wav y capsula_1451.wav siguen versionados hasta resolver H10.
 src/studify/public/audio/*.wav
+# Muestras de voz del selector (scripts/generar_muestras_voz.py): se generan en
+# cada instalación. Las de Piper salen de sharvard, que parte de una voz con
+# datos solo para investigación (AVANCE.md §5.38): no se publican en el repo.
+src/studify/public/muestras_voz/*
+!src/studify/public/muestras_voz/.gitkeep
 *.pdf
 *.pptx
 *.docx

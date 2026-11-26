@@ -135,6 +135,13 @@ OPCIONES_VOZ: tuple[tuple[str, str, str, str], ...] = (
     ("masculina-rapida", "Voz masculina rápida", "Voz masculina · rápida", "Casi inmediata."),
 )
 NOMBRE_VOZ = {valor: nombre for valor, nombre, _, _ in OPCIONES_VOZ}
+# Cómo nombra cada voz su botón de muestra («Escuchar …» / «Detener …»).
+NOMBRE_MUESTRA = {
+    "femenina-calidad": "voz Calidad, mujer",
+    "masculina-calidad": "voz Calidad, hombre",
+    "femenina-rapida": "voz Rápida, mujer",
+    "masculina-rapida": "voz Rápida, hombre",
+}
 
 
 # Hora de Chile para lo que se le muestra al estudiante. La base guarda UTC

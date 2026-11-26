@@ -2962,6 +2962,94 @@ quedó escrito en el informe.
 
 ---
 
+## 5.38. Muestras de voz en el selector (26-nov-2026)
+
+Rama `feat/muestras-voz`. En el selector del visor y del perfil (§5.27) se elegía entre cuatro voces sin
+saber cómo suenan. Ahora cada opción tiene un botón para escuchar una muestra.
+
+Antes de cambiar nada se comprobó el mapeo en `media/audio.py::resolver_voz` y `config.py`: Kokoro
+`ef_dora` y `em_alex` con espeak `es-419`; Piper `es_ES-sharvard-medium`, hablante 1 (femenina) y 0
+(masculina). Coincide con §5.26.
+
+### Generación
+
+- **`media/muestras.py`:** el texto vive en una sola constante, `TEXTO_MUESTRA` («Hola, así sonará la
+  narración de tus cápsulas. Puedes cambiar la voz cuando quieras.»), junto a los nombres, la carpeta y
+  la URL de cada muestra.
+- **`scripts/generar_muestras_voz.py`:**
+  - sintetiza con `audio.generar_audio`, la misma ruta del visor, que normaliza el texto con
+    `media/guion.py`;
+  - escribe `calidad_femenina`, `calidad_masculina`, `rapida_femenina` y `rapida_masculina` en
+    `src/studify/public/muestras_voz/`, aparte del caché por huella de `public/audio`;
+  - con `ffmpeg` en el PATH guarda MP3 mono a 64 kb/s (compatible con cualquier navegador, a diferencia
+    de OGG/Opus en versiones antiguas de Safari); sin `ffmpeg`, o si la conversión falla, deja el WAV;
+  - no regenera las que existen; `--forzar` regenera las cuatro;
+  - revisa los modelos antes de sintetizar y, si falta alguno, indica
+    `python scripts/descargar_voces.py`; con `TTS_MOTOR=xtts` se niega.
+
+### Interfaz y servidor
+
+- **Botón por opción** (visor y perfil, mismo `_selector_voz.html`): 44 px, fuera del `<label>` del radio,
+  `type="button"` y `aria-label` «Escuchar voz Calidad, mujer» (y las otras tres), que cambia a «Detener…»
+  mientras suena. Escuchar no marca ni guarda la voz.
+- **`app.js`** (`initMuestraVoz`): una muestra a la vez, vuelve a su estado al terminar y se desactiva si el
+  archivo no carga. Sin JavaScript el botón no se muestra.
+- **`<audio preload="none">`:** no se descarga nada hasta pulsar.
+- **Sin archivo no hay botón.** Tampoco con `TTS_MOTOR=xtts`, porque el visor narraría con otra voz.
+- **`/public/muestras_voz`:** estático y público (no tiene datos personales), con
+  `Cache-Control: public, max-age=31536000, immutable`. La URL lleva `?v=` con la fecha del archivo, así
+  que una muestra regenerada se vuelve a pedir.
+- Íconos `play` y `square` de Lucide en el sprite.
+
+### Las muestras no se versionan
+
+Se generan en cada instalación (README, «Puesta en marcha»); `.gitignore` ignora la carpeta salvo su
+`.gitkeep`.
+
+- **Licencia:** las dos muestras rápidas salen de `sharvard`, ajustada desde la voz lessac, cuyos datos son
+  solo para investigación (§5.26, `PENDIENTES.md` L8). Versionarlas publicaría ese audio en un repositorio
+  AGPL, que invita a reutilizarlo, y el historial de git es difícil de limpiar (como en H10).
+- Las de Kokoro (Apache-2.0) no tienen esa restricción, pero se tratan igual para tener un solo
+  procedimiento.
+- Son un derivado de modelos que tampoco se versionan y que cada instalación ya tiene que descargar;
+  generarlas toma segundos y no agrega binarios al repo.
+
+### Verificación
+
+- **Muestras reales** en la máquina de desarrollo: 4,6 a 5,0 s y 37 a 40 KB cada una; la segunda corrida no
+  regeneró ninguna.
+- **Tests:** `tests/test_muestras_voz.py` (script con motores falsos, URL, caché, plantillas),
+  `tests/test_muestras_voz.cjs` (comportamiento de `app.js`; lo corre también `pytest` si hay `node`) y dos
+  casos en `tests/test_preferencia_voz.py` (los cuatro botones en el visor y en el perfil).
+- **Navegador** (Edge sin ventana, base `studify_test`), visor y perfil, 390 y 1280 px, tema claro y
+  oscuro: ninguna petición de muestras al cargar ni a terceros; al pulsar, solo `GET` de los MP3, sin
+  `POST`, con el radio y la base sin cambios; una sola a la vez; sin desplazamiento horizontal; botones de
+  44 px; alcanzables con Tab y activables con la barra espaciadora; sin errores de JavaScript. Ahí apareció
+  y se corrigió que un `pause` posterior a un error borraba el aviso «Muestra no disponible».
+- **Suite y lint**, con Postgres (`studify_test`), `LLM_API_KEY` vacía e ignorando `test_visual.py` y
+  `test_voz.py`:
+  - antes del cambio: 820 pasan, 2 omitidas, 0 fallan;
+  - después: **845 pasan, 2 omitidas, 0 fallan**; los tres `.cjs` pasan con `node`;
+  - `ruff check .` da 202 avisos antes y después, los mismos. Son más que los 40 de §5.35 porque 162
+    vienen de `scripts/adherencia` y `scripts/exportar_prueba`, agregados después; fuera de esas dos
+    carpetas siguen siendo 40.
+- No se corrió la suite sin base.
+- El autor probó la función en local (26-nov) y la dio por buena.
+
+### Pendientes registrados
+
+- **Correr el script en cada despliegue.** Sin él la app funciona igual, pero el selector queda sin botones.
+- **Regenerar con `--forzar`** si cambian el texto, una voz o las reglas de `media/guion.py`: el script solo
+  mira si el archivo existe.
+- **Duración algo menor que la buscada** (5 a 8 s): con el texto propuesto, tres muestras duran entre 4,6
+  y 4,9 s y la cuarta 5,0 s.
+- **Volumen desigual:** las de Piper suenan más fuerte (media de −15 y −17 dB) que las de Kokoro (−24 y
+  −23 dB). No se niveló porque la narración real tiene la misma diferencia.
+- **La narración del visor no se pausa** al escuchar una muestra: pueden sonar juntas.
+- **Sin probar** en un teléfono real ni en Safari.
+
+---
+
 ## 6. Pendiente inmediato
 
 > **Registro al 17-oct-2026; ya no se actualiza.** Lo que sigue abierto de esta lista está en [`PENDIENTES.md`](PENDIENTES.md), junto con el resto de los pendientes del proyecto.

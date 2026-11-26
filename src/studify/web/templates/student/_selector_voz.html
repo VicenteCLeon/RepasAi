@@ -4,6 +4,10 @@
    `contexto` ("visor" | "perfil") y, en el visor, `audio_id` y `uid` (para
    reemplazar el widget de audio). Las opciones salen de `textos.OPCIONES_VOZ`.
 
+   Cada opción tiene un botón para escuchar su muestra (`media/muestras.py`), que
+   solo reproduce: elegir y guardar siguen siendo el radio y «Usar esta voz».
+   Si falta el archivo de una muestra, su botón no se dibuja.
+
    Accesibilidad:
    - `fieldset` + `legend`: el lector de pantalla anuncia el grupo y cada opción;
    - radios nativos: Tab entra al grupo y las flechas cambian la opción, sin JS;
@@ -25,13 +29,28 @@
         <legend class="form-label">{{ ui.icon("volume-2", cls="icon-sm") }}Voz de la narración</legend>
         <div class="choice-group auto-grid" style="--grid-min: 13rem">
             {% for valor, nombre, voz, demora in OPCIONES_VOZ %}
-            <label class="choice">
-                <input type="radio" name="voz" value="{{ valor }}" {% if valor == voz_actual %}checked{% endif %}>
-                <span>
-                    <strong>{{ nombre }}</strong>
-                    <span class="form-hint">{{ voz }}. {{ demora }}</span>
-                </span>
-            </label>
+            <div class="voz-opcion">
+                <label class="choice">
+                    <input type="radio" name="voz" value="{{ valor }}" {% if valor == voz_actual %}checked{% endif %}>
+                    <span>
+                        <strong>{{ nombre }}</strong>
+                        <span class="form-hint">{{ voz }}. {{ demora }}</span>
+                    </span>
+                </label>
+                {% set muestra = url_muestra_voz(valor) %}
+                {% if muestra %}
+                {# Fuera del <label>: escuchar no marca la opción. type="button":
+                   tampoco envía el formulario. Nace oculto porque sin JavaScript
+                   no haría nada; app.js lo muestra. #}
+                <button type="button" class="btn btn-secondary btn-icon voz-muestra" hidden
+                        data-muestra-voz="{{ NOMBRE_MUESTRA[valor] }}"
+                        aria-label="Escuchar {{ NOMBRE_MUESTRA[valor] }}"
+                        title="Escuchar muestra">
+                    {{ ui.icon("play", cls="icon-escuchar") }}{{ ui.icon("square", cls="icon-detener") }}
+                </button>
+                <audio preload="none" src="{{ muestra }}"></audio>
+                {% endif %}
+            </div>
             {% endfor %}
         </div>
     </fieldset>

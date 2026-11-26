@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from studify.api.routers import capsules, diagnostics, knowledge
 from studify.config import get_settings, verificar_configuracion
 from studify.db.session import engine, get_db
+from studify.media import muestras
 from studify.registro import configurar_registro
 from studify.web import sesion
 from studify.web.deps import templates
@@ -56,6 +57,29 @@ app.include_router(legal.router)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "web", "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+class EstaticosConCache(StaticFiles):
+    """Archivos estáticos que el navegador puede guardar sin volver a preguntar.
+
+    Solo para URL versionadas: la de cada muestra de voz lleva `?v=` con la
+    fecha del archivo (`media/muestras.py::url`), así que regenerarla cambia la
+    URL.
+    """
+
+    def file_response(self, *args, **kwargs):
+        respuesta = super().file_response(*args, **kwargs)
+        respuesta.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return respuesta
+
+
+# Antes que `/public`, que si no respondería esta ruta sin cabecera de caché.
+# La carpeta existe siempre (tiene un `.gitkeep`); los audios no se versionan.
+app.mount(
+    muestras.URL_MUESTRAS,
+    EstaticosConCache(directory=muestras.DIRECTORIO_MUESTRAS),
+    name="muestras_voz",
+)
 
 PUBLIC_DIR = os.path.join(BASE_DIR, "public")
 if os.path.exists(PUBLIC_DIR):

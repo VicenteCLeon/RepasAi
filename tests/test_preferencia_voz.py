@@ -30,7 +30,7 @@ from studify.db.models import (
     ObjetivoAprendizaje,
 )
 from studify.main import app
-from studify.media import audio
+from studify.media import audio, muestras
 from studify.media.audio import PreferenciaVoz, preferencia_guardada
 from studify.vark.scoring import PerfilVark
 from studify.web import consentimiento, exportacion, narracion, sesion
@@ -465,6 +465,36 @@ def test_el_perfil_muestra_la_voz_guardada(db, escenario):
 
     assert 'value="femenina-rapida" checked' in html
     assert 'id="voz-guardada" role="status"' in html
+
+
+@pytest.fixture
+def muestras_generadas(monkeypatch, tmp_path):
+    """Las cuatro muestras de voz, falsas y en un directorio temporal."""
+    monkeypatch.setattr(muestras, "DIRECTORIO_MUESTRAS", tmp_path)
+    monkeypatch.setattr(get_settings(), "tts_motor", "kokoro")
+    for preferencia in muestras.PREFERENCIAS:
+        (tmp_path / f"{muestras.nombre_base(preferencia)}.mp3").write_bytes(b"audio falso")
+
+
+@necesita_bd
+@pytest.mark.parametrize("pantalla", ["visor", "perfil"])
+def test_la_pantalla_muestra_los_cuatro_botones_de_muestra(
+    escenario, muestras_generadas, pantalla
+):
+    ruta = (
+        "/student/profile"
+        if pantalla == "perfil"
+        else f"/student/viewer/{escenario['objetivo'].id_objetivo}"
+    )
+    app.dependency_overrides[get_cliente_llm] = ClienteObediente
+    try:
+        html = _navegador(escenario["duenio"].id_estudiante).get(ruta).text
+    finally:
+        app.dependency_overrides.pop(get_cliente_llm, None)
+
+    for nombre in ("Calidad, mujer", "Calidad, hombre", "Rápida, mujer", "Rápida, hombre"):
+        assert html.count(f'aria-label="Escuchar voz {nombre}"') == 1
+    assert html.count('<audio preload="none" src="/public/muestras_voz/') == 4
 
 
 @necesita_bd

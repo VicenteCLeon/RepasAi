@@ -5,6 +5,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from studify.config import get_settings
+from studify.media import muestras
 from studify.web import sesion, textos
 
 # Obtener ruta absoluta para evitar problemas al ejecutar desde distintos directorios
@@ -48,3 +49,7 @@ templates = Jinja2Templates(
 # de la barra del perfil.
 templates.env.globals["NOMBRE_CANAL"] = textos.NOMBRE_CANAL
 templates.env.globals["OPCIONES_VOZ"] = textos.OPCIONES_VOZ
+templates.env.globals["NOMBRE_MUESTRA"] = textos.NOMBRE_MUESTRA
+# Función y no un dict: se consulta el disco al dibujar el selector, así que las
+# muestras aparecen en cuanto se generan, sin reiniciar.
+templates.env.globals["url_muestra_voz"] = muestras.url

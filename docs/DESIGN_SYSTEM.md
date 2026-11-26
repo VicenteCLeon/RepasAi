@@ -34,7 +34,7 @@ web/
 │  ├─ js/app.js            # comportamiento, sin dependencias (ver §6)
 │  ├─ vendor/htmx-1.9.10.min.js  # HTMX servido localmente (mismo SRI que unpkg)
 │  ├─ fonts/               # Figtree y Fraunces variables (woff2) + licencias OFL
-│  ├─ icons/sprite.svg     # 56 íconos de Lucide (ISC) como <symbol>
+│  ├─ icons/sprite.svg     # 58 íconos de Lucide (ISC) como <symbol>
 │  ├─ img/favicon.svg      # marca: cápsula en dos mitades
 │  ├─ img/textura-escolar.svg  # textura de la marca original, monocroma (máscara CSS)
 │  └─ styleguide.html      # referencia viva
