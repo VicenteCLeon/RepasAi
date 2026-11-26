@@ -90,7 +90,8 @@ túnel de Cloudflare. Estado de los 13 puntos; ✅ solo donde hay respaldo:
     analizaron.
 11. **No cambiar huellas durante el piloto:** ✅ las 49 cápsulas del piloto coinciden con las huellas que
     calcula el código actual (ver «Material» abajo).
-12. **Fase 5:** ✅ instrumentos definidos (§5.37), sesiones realizadas y análisis hecho (fuera del repositorio).
+12. **Fase 5:** ✅ instrumentos definidos (§5.37), sesiones realizadas, análisis hecho e informe final entregado
+    el 20-nov-2026 (fuera del repositorio).
 13. **Riesgos legales:** L1 abierto; L5 abierto (comprobado el 26-nov).
 
 **Material:** el fragmento 14751 (UX-06-01, página 3: título y un enlace de video), validado después del
@@ -396,14 +397,16 @@ El horizonte del plan terminaba el 09-oct-2026. Origen: `PLAN_DESARROLLO.md` §4
     - cuestionario de percepción sobre la última cápsula.
   - ✅ **Sesiones con usuarios realizadas** (intentos del 8 al 19-nov, los dos
     grupos) y analizadas.
+  - ✅ **Informe final entregado el 20-nov-2026** con los resultados del A/B
+    (LaTeX, fuera de este repositorio).
   - **Material comparable entre grupos:** UX-06-02 (11), UX-06-03 (12),
     UX-06-04 (11) y UX-07-02 (12) superan el tope de 8 fragmentos validados, así
     que en esos objetivos los dos grupos pueden recibir material distinto (ver
     «Retriever» en «Prioridad baja»).
-- **E5. Capítulo de resultados.** El análisis definido en AVANCE §5.37 está hecho
-  (26-nov, fuera de este repositorio). No hay registro aquí de que los
-  `\pendiente` del informe (Tabla 5.6 y la conclusión del cap. 6) estén
-  completados.
+- ✅ **E5. Análisis y capítulo de resultados** (hecho, 20-nov-2026). El análisis
+  definido en AVANCE §5.37, la Tabla 5.6 y la conclusión del cap. 6 quedaron
+  completos en el informe final, entregado ese día (LaTeX, fuera de este
+  repositorio).
 
 E2 (batería técnica con Precision/Recall), E3 (validación docente) y E4 (TAM y
 rúbrica docente) se cerraron el 15-nov por decisión del informe (AVANCE §5.37).
@@ -467,8 +470,11 @@ solo corre en un equipo, que tiene la base en la última migración,
     Google). Las 47 pruebas de `tests/test_google_login.py` pasan.
   - ✅ **Uso real (piloto, 8 a 19-nov):** 20 cuentas de Google entraron en los dos
     grupos por el túnel.
-  - **Sin registro:** el recorrido punto por punto (salir y volver, vincular un
-    perfil local, borrador VARK antes de entrar, «Mis datos» y CSV).
+  - ✅ **`client_secret` rotado** (confirmado el 26-nov).
+  - **Sigue abierto:** las dos comprobaciones manuales que vienen, de las que no
+    hay registro. La restricción por dominio se decide aparte (D7).
+  - **Recorrido punto por punto:** salir y volver, vincular un perfil local,
+    borrador VARK antes de entrar, «Mis datos» y CSV.
   - **Animación de carga del visor (punto 2b), en el mismo recorrido manual:**
     no se verificó en un navegador real (05-nov; la extensión de Chrome no
     estaba conectada). Las pruebas cubren el cálculo
@@ -482,15 +488,14 @@ solo corre en un equipo, que tiene la base en la última migración,
     3. **Recarga, botón «atrás» y enlace directo al visor:** la cápsula se ve
        de inmediato, sin capa.
     4. **bfcache (atrás y adelante):** la capa no queda abierta.
-  - ✅ **`client_secret` rotado** (confirmado el 26-nov).
-  - **Prueba por túnel (Cloudflare):** con la URI en `127.0.0.1` el retorno de
+  - **Prueba por túnel (Cloudflare), nota de uso** (pasos en
+    [`CHECKLIST_DEMO.md`](CHECKLIST_DEMO.md)): con la URI en `127.0.0.1` el retorno de
     Google no vuelve al host del túnel y falla con «El acceso no corresponde a
     este navegador». Para probar desde otro dispositivo hay que poner la URL
     del túnel en `GOOGLE_REDIRECT_URI` y registrarla en Google Cloud; un túnel
     rápido cambia de URL en cada arranque (conviene uno con nombre fijo). Fuera
     de `APP_ENV=dev` la cookie lleva `Secure` y exige un `SESSION_SECRET` fuerte
     (`config.verificar_configuracion`).
-  - **Abierto, decisión del equipo (D7):** ver más abajo.
 
 - **O7. Extra `ingest` incompleto en la máquina de desarrollo:** falta
   `python-pptx`, así que ahí el panel no puede leer `.pptx` (avisa qué instalar).
@@ -506,17 +511,22 @@ reemplazada en el informe por el criterio de ≤ 10 pp) se cerraron el 15-nov
   fragmento y a la vez evitar que un fragmento pertenezca a varios contenidos;
   con `Fragmento.id_objetivo` singular lo segundo se cumple y lo primero es
   imposible. Origen: AVANCE §6 n.º 13.
+  Nota: sin decisión formal registrada; el informe final se entregó el 20-nov-2026.
 - **D3. Embeddings:** su pipeline los incluye y el cap. 13 del informe
   argumenta en contra. Mientras no se cierre, la recuperación sigue siendo SQL
   determinista. Origen: AVANCE §6 n.º 14.
+  Nota: sin decisión formal registrada; el informe final se entregó el 20-nov-2026.
 - **D5. H13 — los pesos C_* llegan al prompt con el nombre de su canal.** Se
   mantuvo como decisión de diseño; si el cap. 17.2 se lee de forma estricta,
   hay que decidirlo aparte. Origen: H13.
+  Nota: sin decisión formal registrada; el informe final se entregó el 20-nov-2026.
 - **D6. Perfiles históricos sin vinculación y sin sesión válida.** El acceso
-  y la recuperación mediante Google ya están implementados (AVANCE §5.34; activación pendiente O6). Los registros del CSV y los perfiles
-  locales cuya cookie se perdió no contienen una identidad verificable para
-  vincularlos a una cuenta. Acordar cómo tratar esos históricos en el piloto;
-  no se emparejan por correo, nombre o sociodemográficos ni se fusionan solos.
+  y la recuperación mediante Google están implementados (AVANCE §5.34) y el
+  acceso con Google se usó en el piloto (8 al 19-nov; O6). Los registros del CSV
+  y los perfiles locales cuya cookie se perdió no contienen una identidad
+  verificable para vincularlos a una cuenta. No hay acuerdo registrado sobre cómo
+  tratar esos históricos; no se emparejan por correo, nombre o sociodemográficos
+  ni se fusionan solos.
 
 - **D7. ¿Restringir el acceso a cuentas `@mail.pucv.cl`?** Hoy entra cualquier
   cuenta Google con correo verificado (`google_login.py::verificar_token`).
@@ -538,7 +548,8 @@ bloques estructurados del frontend (AVANCE §5.37). El prompt
 
 ## Correcciones al informe
 
-Qué corregir, actualizar o agregar en el informe final respecto del de avance
+El informe final se entregó el 20-nov-2026 con los resultados del A/B; no quedan
+correcciones pendientes. El registro de lo que se corrigió respecto del de avance
 está en [`CORRECCIONES_INFORME.md`](CORRECCIONES_INFORME.md).
 
 ---

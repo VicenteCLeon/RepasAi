@@ -37,7 +37,8 @@ avance ya entregado) y el plan de implementación derivado, [`PLAN_DESARROLLO.md
 | **Marco legal** | Términos 0.7 y Política 0.9 (26-nov): nombre y correo de Google, túnel de Cloudflare, sin IP en archivos y material revisado por el equipo. Consentimiento registrado, `/mis-datos` y código bajo AGPL-3.0-or-later. | §5.21, §5.29, §5.35, §5.39 |
 | **Audio (Fase 6)** | Kokoro y Piper según la preferencia de voz del estudiante, con caché por huella. | §5.26 a §5.28 |
 | **Imagen (Fase 6)** | Descartada el 15-nov: sin financiamiento y sin resultados mínimos viables en las pruebas locales. El módulo Visual no se implementa; el apoyo visual son bloques estructurados dibujados en el frontend. | §5.30, §5.37 |
-| **Fase 5 — Evaluación** | Instrumentos definidos (pre/post de 10 preguntas y cuestionario de percepción), sesiones con usuarios terminadas y analizadas (el análisis está fuera de este repositorio). | §5.37, `PENDIENTES.md` E |
+| **Fase 5 — Evaluación** | Cerrada. Instrumentos definidos (pre/post de 10 preguntas y cuestionario de percepción), sesiones con usuarios terminadas y analizadas. | §5.37, `PENDIENTES.md` E |
+| **Informe final** | Entregado el 20-nov-2026 con los resultados del A/B. Escrito en LaTeX y compilado en Prism, fuera de este repositorio. | `CORRECCIONES_INFORME.md` |
 | **Modelo** | `deepseek-flash` con el razonamiento apagado (`LLM_THINKING=disabled`) desde el 11-oct. | §5.30 |
 | **Suite local** | 26-nov: con Postgres (`studify_test`) 917 pasan, 0 fallan; sin base 560 pasan, 353 omitidas y 4 fallan (los de `test_web_auth.py` sin `@necesita_bd`). Los tres tests de node pasan. `ruff check .`: 201 avisos previos. | §5.39 |
 

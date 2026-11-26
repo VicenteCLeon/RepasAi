@@ -289,9 +289,9 @@ El índice completo, con qué es cada documento y cuándo leerlo, está en
 | Documento | Contenido |
 |---|---|
 | [`docs/AVANCE.md`](docs/AVANCE.md) | Estado actual del proyecto y bitácora: qué se hizo y cómo se verificó. |
-| [`docs/PENDIENTES.md`](docs/PENDIENTES.md) | Todo lo que falta, empezando por lo que hay que cerrar antes del piloto. |
+| [`docs/PENDIENTES.md`](docs/PENDIENTES.md) | La lista de lo que sigue abierto (código, generación VARK, legal, operación, decisiones y extensiones) y qué preparar antes de una demostración. |
 | [`docs/PLAN_DESARROLLO.md`](docs/PLAN_DESARROLLO.md) | Roadmap por fases, decisiones de stack, riesgos y contrato de la microcápsula. |
-| [`docs/CORRECCIONES_INFORME.md`](docs/CORRECCIONES_INFORME.md) | Qué corregir o agregar en el informe final respecto del de avance. |
+| [`docs/CORRECCIONES_INFORME.md`](docs/CORRECCIONES_INFORME.md) | Registro de las correcciones al informe respecto del de avance, ya aplicadas en la versión entregada el 20-nov-2026. |
 
 ---
 

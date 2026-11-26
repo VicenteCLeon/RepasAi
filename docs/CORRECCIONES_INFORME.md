@@ -4,24 +4,31 @@
 > **informe de avance** (`seminario_titulo.md`, abril de 2026, y su versión LaTeX
 > del 11-sep-2026), y dónde quedó aplicado.
 >
-> Cuando se aplica una corrección al informe, se tacha o se borra acá. El
-> **15-nov-2026 se aplicaron todas** en el LaTeX del informe final (carpeta
-> `Informe`, fuera del repo). El registro detallado, con archivo, sección y
-> motivo de cada cambio, está en `Informe/CAMBIOS_REALIZADOS.md`; las decisiones
-> del equipo, en `AVANCE.md` §5.37. El texto completo de cada ítem queda en el
-> historial de git de este archivo.
+> **El informe final se entregó el 20-nov-2026 con los resultados del A/B.** La
+> versión final se compiló en Prism, fuera del repo.
 >
-> Última revisión: 15-nov-2026.
+> Cuando se aplica una corrección al informe, se tacha o se borra acá. El
+> **15-nov-2026 se aplicaron** en el LaTeX del informe final (carpeta `Informe`,
+> fuera del repo) las de la tabla de abajo; lo que quedaba se resolvió antes de la
+> entrega. El registro detallado, con archivo, sección y motivo de cada cambio del
+> 15-nov, está en `Informe/CAMBIOS_REALIZADOS.md`; las decisiones del equipo, en
+> `AVANCE.md` §5.37. El texto completo de cada ítem queda en el historial de git
+> de este archivo.
+>
+> Última revisión: 26-nov-2026.
 
 ## Lo que sigue pendiente
 
-- **Resultados del estudio A/B:** completar en el LaTeX los `\pendiente` con los
-  datos de las pruebas del grupo Control. Son 17 celdas de la Tabla 5.6 (n,
-  pre, post, diferencia, acierto en `quiz_mc`, cuestionarios, esfuerzo,
-  usabilidad y satisfacción) y la conclusión del cap. 6 sobre el efecto de la
-  adaptación (`PENDIENTES.md` E1 y E5).
-- **Forma, menores:** 4 overfull preexistentes en el diccionario de datos y en la
-  tabla del stack, y el aviso `page.i` de pdfTeX.
+Nada.
+
+## Resuelto antes de la entrega (20-nov-2026)
+
+- ✅ ~~**Resultados del estudio A/B:**~~ completados los `\pendiente`: las 17
+  celdas de la Tabla 5.6 (n, pre, post, diferencia, acierto en `quiz_mc`,
+  cuestionarios, esfuerzo, usabilidad y satisfacción) y la conclusión del cap. 6
+  sobre el efecto de la adaptación (`PENDIENTES.md` E1 y E5).
+- ✅ ~~**Forma, menores:**~~ corregidos los 4 overfull del diccionario de datos y
+  de la tabla del stack, y el aviso `page.i` de pdfTeX.
 
 ## Aplicado el 15-nov-2026
 
